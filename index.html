@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Separator v1.1 - Studio AI Pro</title>
+    <title>AI Code Separator v1.2 - Fixed</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -13,12 +13,11 @@
         }
         .main-wrapper { max-width: 1000px; width: 100%; }
         .container { 
-            background: rgba(255, 255, 255, 0.96); padding: 30px; border-radius: 40px; 
+            background: rgba(255, 255, 255, 0.98); padding: 30px; border-radius: 40px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.2); border: 8px solid #fff;
         }
         h1 { color: #6c5ce7; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: -1px; }
         
-        /* INPUT AREA */
         textarea { 
             width: 100%; height: 200px; padding: 20px; border-radius: 25px; border: 3px solid #eee;
             font-size: 15px; outline: none; margin-bottom: 15px; resize: vertical; transition: 0.3s;
@@ -26,7 +25,6 @@
         }
         textarea:focus { border-color: #6c5ce7; background: #fff; box-shadow: 0 10px 20px rgba(108, 92, 231, 0.1); }
 
-        /* BUTTON CONTROLS */
         .action-bars { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
         .btn { 
             flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; 
@@ -38,9 +36,7 @@
         .btn-clear { background: #ff4757; box-shadow: 0 6px 0 #b33939; }
         
         .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
-        .btn:hover { filter: brightness(1.1); }
 
-        /* OUTPUT GRID */
         .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .output-grid { grid-template-columns: 1fr; } }
 
@@ -48,7 +44,6 @@
         .box-title { 
             font-size: 14px; font-weight: bold; color: #6c5ce7; margin-bottom: 12px; 
             display: flex; justify-content: space-between; align-items: center; 
-            text-transform: uppercase;
         }
         .copy-small { 
             background: #6c5ce7; color: white; border: none; padding: 6px 12px; 
@@ -69,31 +64,27 @@
     <div class="container">
         <h1>Code Separator ✂️</h1>
         
-        <!-- INPUT UTAMA -->
-        <textarea id="raw-input" placeholder="Paste respon AI yang bercampur kod dan teks kat sini..."></textarea>
+        <textarea id="raw-input" placeholder="Paste respon AI di sini..."></textarea>
         
-        <!-- CONTROL BUTTONS -->
         <div class="action-bars">
             <button class="btn btn-process" onclick="separateNow()">ASINGKAN KOD 🚀</button>
-            <button class="btn btn-copy-raw" onclick="copyToClipboard('raw-input')">SALIN ASAL 📋</button>
+            <button class="btn btn-copy-raw" onclick="copyToClipboard(event, 'raw-input')">SALIN ASAL 📋</button>
             <button class="btn btn-clear" onclick="clearAll()">PADAM SEMUA 🗑️</button>
         </div>
 
         <div class="output-grid">
-            <!-- RUANG CLEAN CODE -->
             <div class="box">
                 <div class="box-title">
                     <span>CLEAN CODE 💎</span>
-                    <button class="copy-small" onclick="copyToClipboard('code-output')">Copy Code</button>
+                    <button class="copy-small" onclick="copyToClipboard(event, 'code-output')">Copy Code</button>
                 </div>
                 <div id="code-output" class="display-area">Kod akan muncul di sini...</div>
             </div>
 
-            <!-- RUANG NORMAL TEXT -->
             <div class="box">
                 <div class="box-title">
                     <span>NORMAL TEXT 💬</span>
-                    <button class="copy-small" onclick="copyToClipboard('text-output')">Copy Text</button>
+                    <button class="copy-small" onclick="copyToClipboard(event, 'text-output')">Copy Text</button>
                 </div>
                 <div id="text-output" class="display-area text-mode">Borak biasa akan muncul di sini...</div>
             </div>
@@ -112,15 +103,7 @@
             return;
         }
 
-        // Regex untuk tangkap apa yang dalam 
-
-/* --- NEXT BLOCK --- */
-
-        const codeRegex = /
-
-/* --- NEXT BLOCK --- */
-
-/g;
+        const codeRegex = /```[\s\S]*?```/g;
         let codeMatches = input.match(codeRegex);
         
         let allCode = "";
@@ -128,54 +111,40 @@
 
         if (codeMatches) {
             codeMatches.forEach((match, index) => {
-                // Buang backticks dan nama language
-                let singleCode = match.replace(/
-
-/* --- NEXT BLOCK --- */
-
-/g, "");
+                let singleCode = match.replace(/```[a-z]*\n?/gi, "").replace(/```/g, "");
                 allCode += singleCode + (index < codeMatches.length - 1 ? "\n\n/* --- NEXT BLOCK --- */\n\n" : "");
-                
-                // Buang kod dari teks borak
                 cleanText = cleanText.replace(match, "");
             });
         }
 
         codeOutput.innerText = allCode || "Tiada kod dijumpai.";
         textOutput.innerText = cleanText.trim() || "Tiada teks dijumpai.";
-        
-        // Auto-scroll ke bawah untuk tengok hasil
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function clearAll() {
-        if (confirm("Betul ke nak padam semua teks?")) {
+        if (confirm("Betul ke nak padam semua?")) {
             document.getElementById('raw-input').value = "";
             document.getElementById('code-output').innerText = "Kod akan muncul di sini...";
             document.getElementById('text-output').innerText = "Borak biasa akan muncul di sini...";
         }
     }
 
-    function copyToClipboard(elementId) {
+    function copyToClipboard(e, elementId) {
         const el = document.getElementById(elementId);
-        // Jika textarea guna .value, jika div guna .innerText
         const text = el.tagName === "TEXTAREA" ? el.value : el.innerText;
         
         if (!text || text.includes("akan muncul di sini") || text === "Tiada kod dijumpai.") return;
         
         navigator.clipboard.writeText(text).then(() => {
-            const btn = event.target;
+            const btn = e.target;
             const originalText = btn.innerText;
             btn.innerText = "COPIED! ✅";
             setTimeout(() => { btn.innerText = originalText; }, 2000);
         }).catch(err => {
-            alert("Gagal menyalin teks: " + err);
+            console.error("Gagal copy: ", err);
         });
     }
 </script>
 
 </body>
 </html>
-
-
-
