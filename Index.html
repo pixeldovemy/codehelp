@@ -1,1 +1,128 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Separator - Studio AI Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
+        }
+        .main-wrapper { max-width: 900px; width: 100%; }
+        .container { 
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 6px solid #fff;
+        }
+        h1 { color: #6c5ce7; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        
+        textarea { 
+            width: 100%; height: 180px; padding: 15px; border-radius: 20px; border: 2px solid #eee;
+            font-size: 14px; outline: none; margin-bottom: 20px; resize: vertical; transition: 0.3s;
+        }
+        textarea:focus { border-color: #6c5ce7; box-shadow: 0 0 15px rgba(108, 92, 231, 0.1); }
+
+        .btn-process { 
+            width: 100%; padding: 15px; background: #6c5ce7; color: white; border: none; 
+            border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; margin-bottom: 30px;
+            box-shadow: 0 6px 0 #4834d4; transition: 0.2s;
+        }
+        .btn-process:active { transform: translateY(4px); box-shadow: 0 2px 0 #4834d4; }
+
+        .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .output-grid { grid-template-columns: 1fr; } }
+
+        .box { background: #f8f9fa; border-radius: 20px; padding: 20px; position: relative; border: 1px solid #ddd; }
+        .box-title { font-size: 14px; font-weight: bold; color: #6c5ce7; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { 
+            background: #6c5ce7; color: white; border: none; padding: 5px 12px; border-radius: 8px; 
+            font-size: 12px; cursor: pointer; transition: 0.3s; 
+        }
+        .copy-btn:hover { background: #4834d4; }
+
+        .display-area { 
+            background: #fff; border-radius: 12px; padding: 15px; border: 1px solid #eee; 
+            height: 300px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; word-break: break-word;
+            font-family: 'Courier New', Courier, monospace; color: #333;
+        }
+        .text-mode { font-family: 'Fredoka', sans-serif !important; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="container">
+        <h1>Code Separator ✂️</h1>
+        
+        <textarea id="raw-input" placeholder="Paste semua respon AI kat sini... (termasuk code & borak)"></textarea>
+        
+        <button class="btn-process" onclick="separateNow()">ASINGKAN KOD SEKARANG 🚀</button>
+
+        <div class="output-grid">
+            <!-- RUANG CLEAN CODE -->
+            <div class="box">
+                <div class="box-title">
+                    <span>CLEAN CODE 💎</span>
+                    <button class="copy-btn" onclick="copyToClipboard('code-output')">Copy Code</button>
+                </div>
+                <div id="code-output" class="display-area">Kod akan muncul di sini...</div>
+            </div>
+
+            <!-- RUANG NORMAL TEXT -->
+            <div class="box">
+                <div class="box-title">
+                    <span>NORMAL TEXT 💬</span>
+                    <button class="copy-btn" onclick="copyToClipboard('text-output')">Copy Text</button>
+                </div>
+                <div id="text-output" class="display-area text-mode">Borak biasa akan muncul di sini...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function separateNow() {
+        const input = document.getElementById('raw-input').value;
+        const codeOutput = document.getElementById('code-output');
+        const textOutput = document.getElementById('text-output');
+
+        // Regex untuk tangkap apa yang dalam ```code```
+        const codeRegex = /```[\s\S]*?```/g;
+        let codeMatches = input.match(codeRegex);
+        
+        let allCode = "";
+        let cleanText = input;
+
+        if (codeMatches) {
+            codeMatches.forEach(match => {
+                // Buang backticks dan nama language (html, css etc)
+                let singleCode = match.replace(/```[a-z]*\n?/gi, "").replace(/```/g, "");
+                allCode += singleCode + "\n\n/* --- NEXT BLOCK --- */\n\n";
+                
+                // Buang kod dari teks asal
+                cleanText = cleanText.replace(match, "");
+            });
+        }
+
+        codeOutput.innerText = allCode || "Tiada kod dijumpai.";
+        textOutput.innerText = cleanText.trim() || "Tiada teks dijumpai.";
+    }
+
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        if (text === "Tiada kod dijumpai." || text === "Tiada teks dijumpai.") return;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED! ✅";
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>
 
