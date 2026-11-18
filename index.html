@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Separator v1.8 - Final Fix</title>
+    <title>AI Code Separator v2.1 - Ultimate Fix</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -17,14 +17,14 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.2); border: 8px solid #fff;
         }
         h1 { color: #6c5ce7; text-align: center; margin-bottom: 5px; text-transform: uppercase; letter-spacing: -1px; }
-        .version-tag { text-align: center; font-size: 12px; color: #a29bfe; margin-bottom: 20px; font-weight: bold; }
+        .status-bar { text-align: center; font-size: 12px; color: #27ae60; margin-bottom: 20px; font-weight: bold; }
         
         textarea { 
             width: 100%; height: 180px; padding: 20px; border-radius: 25px; border: 3px solid #eee;
             font-size: 15px; outline: none; margin-bottom: 15px; resize: vertical; transition: 0.3s;
             background: #fdfdfd;
         }
-        textarea:focus { border-color: #6c5ce7; background: #fff; box-shadow: 0 10px 20px rgba(108, 92, 231, 0.1); }
+        textarea:focus { border-color: #6c5ce7; background: #fff; }
 
         .action-bars { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
         .btn { 
@@ -51,18 +51,18 @@
         }
         .copy-small { 
             background: #6c5ce7; color: white; border: none; padding: 6px 12px; 
-            border-radius: 10px; font-size: 12px; cursor: pointer; transition: 0.3s;
+            border-radius: 10px; font-size: 12px; cursor: pointer;
         }
 
         .display-area { 
             background: #fff; border-radius: 15px; padding: 15px; border: 1px solid #eee; 
-            height: 300px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; word-break: break-word;
-            font-family: 'Courier New', Courier, monospace; color: #333; line-height: 1.5;
+            height: 300px; overflow-y: auto; font-size: 13px; white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace; color: #333;
         }
         .json-mode { color: #2e86de; font-weight: bold; height: 400px; }
-        .text-mode { font-family: 'Fredoka', sans-serif !important; font-size: 14px; color: #2d3436; }
-        .error-json { color: #e74c3c; border: 2px solid #ff7675; background: #fff5f5; }
-        .success-fix { border: 2px solid #27ae60; background: #f0fff4; }
+        .text-mode { font-family: 'Fredoka', sans-serif !important; }
+        .success-fix { border: 2px solid #27ae60 !important; }
+        .error-json { border: 2px solid #e74c3c !important; }
     </style>
 </head>
 <body>
@@ -70,22 +70,22 @@
 <div class="main-wrapper">
     <div class="container">
         <h1>Code Separator ✂️</h1>
-        <div class="version-tag">VERSION 1.8 - STABLE FIX</div>
+        <div id="app-status" class="status-bar">System Ready: v2.1</div>
         
-        <textarea id="raw-input" placeholder="Paste respon dari AI kat sini..."></textarea>
+        <textarea id="raw-input" placeholder="Paste respon AI kat sini..."></textarea>
         
         <div class="action-bars">
-            <button class="btn btn-process" onclick="separateNow()">ASINGKAN KOD 🚀</button>
-            <button class="btn btn-json" onclick="beautifyAndRepairJSON()">KEMAS JSON ✨</button>
-            <button class="btn btn-copy-raw" onclick="copyToClipboard(event, 'raw-input')">SALIN ASAL 📋</button>
-            <button class="btn btn-clear" onclick="clearAll()">PADAM SEMUA 🗑️</button>
+            <button id="btn-process" class="btn btn-process">ASINGKAN KOD 🚀</button>
+            <button id="btn-json" class="btn btn-json">KEMAS JSON ✨</button>
+            <button id="btn-copy-raw" class="btn btn-copy-raw">SALIN ASAL 📋</button>
+            <button id="btn-clear" class="btn btn-clear">PADAM SEMUA 🗑️</button>
         </div>
 
         <div class="output-grid">
             <div class="box">
                 <div class="box-title">
                     <span>CLEAN CODE 💎</span>
-                    <button class="copy-small" onclick="copyToClipboard(event, 'code-output')">Copy Code</button>
+                    <button class="copy-small" data-target="code-output">Copy Code</button>
                 </div>
                 <div id="code-output" class="display-area">Kod akan muncul di sini...</div>
             </div>
@@ -93,70 +93,68 @@
             <div class="box">
                 <div class="box-title">
                     <span>NORMAL TEXT 💬</span>
-                    <button class="copy-small" onclick="copyToClipboard(event, 'text-output')">Copy Text</button>
+                    <button class="copy-small" data-target="text-output">Copy Text</button>
                 </div>
                 <div id="text-output" class="display-area text-mode">Teks akan muncul di sini...</div>
             </div>
 
             <div class="box full-width">
                 <div class="box-title">
-                    <span id="json-status">JSON MEGA REPAIR 📂</span>
-                    <button class="copy-small" style="background: #27ae60;" onclick="copyToClipboard(event, 'json-output')">Copy JSON</button>
+                    <span id="json-label">JSON MEGA REPAIR 📂</span>
+                    <button class="copy-small" style="background: #27ae60;" data-target="json-output">Copy JSON</button>
                 </div>
-                <div id="json-output" class="display-area json-mode">Keputusan JSON repair akan dipaparkan di sini...</div>
+                <div id="json-output" class="display-area json-mode">Hasil repair JSON...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function separateNow() {
-        const input = document.getElementById('raw-input').value;
-        const codeOutput = document.getElementById('code-output');
-        const textOutput = document.getElementById('text-output');
+// Pastikan semua element dah ready
+window.onload = function() {
+    console.log("App Initialized...");
+    document.getElementById('app-status').innerText = "System Active: v2.1 (Waiting for input)";
 
-        if (!input.trim()) return alert("Paste dulu baru syok!");
+    // Ambil references
+    const rawInput = document.getElementById('raw-input');
+    const codeOut = document.getElementById('code-output');
+    const textOut = document.getElementById('text-output');
+    const jsonOut = document.getElementById('json-output');
 
-        const codeRegex = /
+    // 1. Fungsi Asingkan Kod
+    document.getElementById('btn-process').addEventListener('click', function() {
+        const val = rawInput.value.trim();
+        if(!val) return alert("Paste dulu bro!");
 
-/* --- NEXT BLOCK --- */
-
-/g;
+        // Regex paling stabil untuk tangkap ```kod```
+        const parts = val.split(/(```[\s\S]*?```)/g);
         let codes = [];
-        let lastIndex = 0;
-        let cleanText = "";
-        let match;
+        let texts = [];
 
-        while ((match = codeRegex.exec(input)) !== null) {
-            cleanText += input.substring(lastIndex, match.index);
-            let content = match[0].replace(/^
+        parts.forEach(part => {
+            if (part.startsWith('```')) {
+                let clean = part.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
+                codes.push(clean);
+            } else {
+                if(part.trim()) texts.push(part.trim());
+            }
+        });
 
-/* --- NEXT BLOCK --- */
+        codeOut.innerText = codes.length > 0 ? codes.join("\n\n/* --- NEXT BLOCK --- */\n\n") : "Tiada kod ditemui.";
+        textOut.innerText = texts.length > 0 ? texts.join("\n\n") : "Tiada teks ditemui.";
+        console.log("Separation done.");
+    });
 
-$/, '');
-            codes.push(content.trim());
-            lastIndex = codeRegex.lastIndex;
-        }
-        cleanText += input.substring(lastIndex);
+    // 2. Fungsi Repair JSON
+    document.getElementById('btn-json').addEventListener('click', function() {
+        const val = rawInput.value.trim();
+        if(!val) return alert("Input kosong!");
 
-        codeOutput.innerText = codes.length > 0 ? codes.join("\n\n/* --- NEXT BLOCK --- */\n\n") : "Tiada kod dijumpai.";
-        textOutput.innerText = cleanText.trim() || "Tiada teks dijumpai.";
-    }
-
-    function beautifyAndRepairJSON() {
-        let input = document.getElementById('raw-input').value.trim();
-        const jsonOutput = document.getElementById('json-output');
-        const jsonStatus = document.getElementById('json-status');
-        if (!input) return alert("Masukkan data dulu!");
-
-        let cleanInput = input.replace(/
-
-/* --- NEXT BLOCK --- */
-
-/g, '').trim();
+        let clean = val.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
 
         try {
-            let repaired = cleanInput
+            // Repair Logic
+            let repaired = clean
                 .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1')
                 .replace(/['’‘]/g, '"')
                 .replace(/,\s*([\]}])/g, '$1')
@@ -165,71 +163,54 @@ $/, '');
 
             if (repaired.includes('},{') && !repaired.startsWith('[')) repaired = '[' + repaired + ']';
 
-            const jsonObj = JSON.parse(repaired);
-            jsonOutput.innerText = JSON.stringify(jsonObj, null, 2);
-            jsonOutput.className = 'display-area json-mode success-fix';
-            jsonStatus.innerText = "JSON MEGA REPAIR 📂 - ✅ BERJAYA";
+            const obj = JSON.parse(repaired);
+            jsonOut.innerText = JSON.stringify(obj, null, 2);
+            jsonOut.className = "display-area json-mode success-fix";
+            document.getElementById('json-label').innerText = "JSON REPAIR: ✅ BERJAYA";
         } catch (e) {
-            jsonOutput.innerText = "❌ ERROR: " + e.message;
-            jsonOutput.className = 'display-area json-mode error-json';
-            jsonStatus.innerText = "JSON MEGA REPAIR 📂 - ❌ GAGAL";
+            jsonOut.innerText = "Error: " + e.message;
+            jsonOut.className = "display-area json-mode error-json";
+            document.getElementById('json-label').innerText = "JSON REPAIR: ❌ GAGAL";
         }
-    }
+    });
 
-    function copyToClipboard(e, elementId) {
-        const el = document.getElementById(elementId);
-        let textToCopy = (el.tagName === "TEXTAREA") ? el.value : el.innerText;
+    // 3. Fungsi Salin (Copy)
+    document.querySelectorAll('.copy-small, .btn-copy-raw').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('data-target') || 'raw-input';
+            const el = document.getElementById(targetId);
+            const text = el.tagName === "TEXTAREA" ? el.value : el.innerText;
 
-        // Cek kalau teks tu cuma placeholder
-        if (!textToCopy || textToCopy.includes("muncul di sini") || textToCopy.includes("Tiada kod")) {
-            return;
-        }
+            if(!text || text.includes("muncul di sini")) return;
 
-        const btn = e.target;
-        const originalBg = btn.style.background;
+            const originalText = this.innerText;
+            const self = this;
 
-        // Cara Moden
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showSuccess(btn, originalBg);
-            }).catch(err => {
-                fallbackCopy(textToCopy, btn, originalBg);
-            });
-        } else {
-            // Cara Fallback (Lama tapi power)
-            fallbackCopy(textToCopy, btn, originalBg);
-        }
-    }
+            // Fallback Copy
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                self.innerText = "COPIED! ✅";
+                self.style.background = "#2ecc71";
+                setTimeout(() => { 
+                    self.innerText = originalText; 
+                    self.style.background = ""; 
+                }, 1500);
+            } catch (err) {
+                alert("Gagal copy!");
+            }
+            document.body.removeChild(textArea);
+        });
+    });
 
-    function fallbackCopy(text, btn, originalBg) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            showSuccess(btn, originalBg);
-        } catch (err) {
-            alert('Gagal salin: ', err);
-        }
-        document.body.removeChild(textArea);
-    }
-
-    function showSuccess(btn, originalBg) {
-        const originalText = btn.innerText;
-        btn.innerText = "COPIED! ✅";
-        btn.style.background = "#2ecc71";
-        setTimeout(() => { 
-            btn.innerText = originalText;
-            btn.style.background = originalBg;
-        }, 1500);
-    }
-
-    function clearAll() {
-        if (confirm("Padam semua?")) {
-            location.reload();
-        }
-    }
+    // 4. Padam Semua
+    document.getElementById('btn-clear').addEventListener('click', function() {
+        if(confirm("Padam semua data?")) location.reload();
+    });
+};
 </script>
 </body>
 </html>
