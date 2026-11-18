@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v5.1 - Specialist Hardwired</title>
+    <title>AI Multi-Separator v5.2 - The Surgeon</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
         body { background: #f0f2f5; margin: 0; padding: 20px; }
         .wrapper { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         
-        /* Navigation Tabs */
         .nav-tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 3px solid #eee; padding-bottom: 15px; }
         .nav-btn { 
             flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; 
@@ -18,7 +17,6 @@
         }
         .nav-btn.active { background: #6c5ce7; color: white; }
 
-        /* Mode Content Visibility */
         .mode-content { display: none; }
         .mode-content.active { display: block; }
 
@@ -34,23 +32,20 @@
         .btn-copy { background: #00b894; border-bottom: 4px solid #00876c; }
         .btn:active { transform: translateY(2px); border-bottom-width: 2px; }
 
-        /* Grid Layouts */
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        @media (max-width: 1000px) {
-            .grid-3, .grid-2 { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1000px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
 
         .column { display: flex; flex-direction: column; }
         .label { font-size: 13px; font-weight: bold; color: #6c5ce7; margin-bottom: 8px; text-transform: uppercase; }
         
         textarea { 
-            width: 100%; height: 450px; padding: 15px; border-radius: 15px; border: 2px solid #ddd;
+            width: 100%; height: 500px; padding: 15px; border-radius: 15px; border: 2px solid #ddd;
             font-size: 13px; outline: none; resize: none; background: #fff; line-height: 1.5;
         }
         .display-box { 
-            width: 100%; height: 450px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
+            width: 100%; height: 500px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
             background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 13px; 
             overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
         }
@@ -59,7 +54,6 @@
 <body>
 
 <div class="wrapper">
-    <!-- Header Tabs -->
     <div class="nav-tabs">
         <button id="tab-ext-btn" class="nav-btn active">1. EXTRACTION MODE ✂️</button>
         <button id="tab-beau-btn" class="nav-btn">2. BEAUTIFY MODE ✨</button>
@@ -67,7 +61,7 @@
 
     <!-- EXTRACTION PAGE -->
     <div id="page-extraction" class="mode-content active">
-        <h2>HTML & Text Specialist Extractor</h2>
+        <h2>Specialist HTML & Text Extractor</h2>
         <div class="btn-row">
             <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
             <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
@@ -81,11 +75,11 @@
                 <textarea id="input-ext" placeholder="Paste respon AI di sini..."></textarea>
             </div>
             <div class="column">
-                <span class="label">HTML Page Code</span>
+                <span class="label">HTML Page Code (Pure)</span>
                 <div id="out-html" class="display-box">Kod HTML akan muncul di sini...</div>
             </div>
             <div class="column">
-                <span class="label">Text Extraction (Tanpa Kod)</span>
+                <span class="label">Normal Text (Extraction)</span>
                 <div id="out-text" class="display-box" style="font-family: 'Fredoka', sans-serif;">Penerangan AI akan muncul di sini...</div>
             </div>
         </div>
@@ -114,94 +108,88 @@
 </div>
 
 <script>
-    // System Initialization
     document.addEventListener("DOMContentLoaded", function() {
-        console.log("System v5.1 Ready...");
-
-        // --- TABS LOGIC ---
+        // TAB LOGIC
         const tabExtBtn = document.getElementById('tab-ext-btn');
         const tabBeauBtn = document.getElementById('tab-beau-btn');
         const pageExt = document.getElementById('page-extraction');
         const pageBeau = document.getElementById('page-beautify');
 
-        tabExtBtn.addEventListener('click', function() {
-            tabExtBtn.classList.add('active');
-            tabBeauBtn.classList.remove('active');
-            pageExt.classList.add('active');
-            pageBeau.classList.remove('active');
+        tabExtBtn.addEventListener('click', () => {
+            tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active');
+            pageExt.classList.add('active'); pageBeau.classList.remove('active');
         });
 
-        tabBeauBtn.addEventListener('click', function() {
-            tabBeauBtn.classList.add('active');
-            tabExtBtn.classList.remove('active');
-            pageBeau.classList.add('active');
-            pageExt.classList.remove('active');
+        tabBeauBtn.addEventListener('click', () => {
+            tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active');
+            pageBeau.classList.add('active'); pageExt.classList.remove('active');
         });
 
-        // --- EXTRACTION LOGIC ---
+        // EXTRACTION LOGIC (THE SURGEON)
         const btnRunExt = document.getElementById('btn-run-ext');
-        const inputExt = document.getElementById('input-ext');
-        const outHtml = document.getElementById('out-html');
-        const outText = document.getElementById('out-text');
-
         btnRunExt.addEventListener('click', function() {
-            const raw = inputExt.value.trim();
+            const raw = document.getElementById('input-ext').value.trim();
             if(!raw) return alert("Sila masukkan input!");
 
-            // Pecahkan guna Backticks
+            // 1. Pecahkan ikut simbol backticks
             const parts = raw.split(/```/);
-            let htmlParts = [];
-            let textParts = [];
+            let rawCodeBlocks = [];
+            let rawTextBlocks = [];
 
             parts.forEach((part, index) => {
-                // Bahagian Genap = Teks di luar kod
-                if (index % 2 === 0) {
-                    if(part.trim()) textParts.push(part.trim());
-                } 
-                // Bahagian Ganjil = Kod di dalam backticks
-                else {
-                    let clean = part.replace(/^[a-zA-Z]+\n/, '').trim();
-                    htmlParts.push(clean);
+                if (index % 2 !== 0) {
+                    // Kandungan DALAM backticks (Potential Code)
+                    let clean = part.replace(/^[a-zA-Z]*\n/, '').trim();
+                    if(clean) rawCodeBlocks.push(clean);
+                } else {
+                    // Kandungan LUAR backticks (Potential Text)
+                    if(part.trim()) rawTextBlocks.push(part.trim());
                 }
             });
 
-            outHtml.innerText = htmlParts.length > 0 ? htmlParts.join("\n\n") : "Tiada kod ditemui.";
-            outText.innerText = textParts.length > 0 ? textParts.join("\n\n") : "Tiada teks ditemui.";
+            // 2. Sanity Check: Pastikan tiada teks "sesat" dalam kotak kod
+            let finalHtml = [];
+            let finalExtractedText = [...rawTextBlocks];
+
+            rawCodeBlocks.forEach(block => {
+                // Jika blok ada tag HTML atau simbol kod JS/CSS yang jelas
+                if (block.includes('<') || block.includes('{') || block.includes('/>') || block.includes('function')) {
+                    finalHtml.push(block);
+                } else {
+                    // Jika tak nampak macam kod, campak ke kotak teks
+                    finalExtractedText.push(block);
+                }
+            });
+
+            document.getElementById('out-html').innerText = finalHtml.join("\n\n/* --- NEXT BLOCK --- */\n\n");
+            document.getElementById('out-text').innerText = finalExtractedText.join("\n\n");
         });
 
-        // --- BEAUTIFY LOGIC ---
+        // BEAUTIFY LOGIC
         const btnRunBeau = document.getElementById('btn-run-beau');
-        const inputBeau = document.getElementById('input-beau');
-        const outJson = document.getElementById('out-json');
-
         btnRunBeau.addEventListener('click', function() {
-            const raw = inputBeau.value.trim();
+            const raw = document.getElementById('input-beau').value.trim();
             if(!raw) return alert("Sila masukkan data JSON!");
-
-            // Buang backticks kalau user paste dengan simbol kod
             let clean = raw.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
-
             try {
                 const obj = JSON.parse(clean);
-                outJson.innerText = JSON.stringify(obj, null, 2);
+                document.getElementById('out-json').innerText = JSON.stringify(obj, null, 2);
             } catch (e) {
-                outJson.innerText = "❌ RALAT JSON: " + e.message;
+                document.getElementById('out-json').innerText = "❌ RALAT JSON: " + e.message;
             }
         });
 
-        // --- UNIVERSAL COPY LOGIC ---
+        // UNIVERSAL COPY
         function copyToClipboard(elementId, btn) {
             const el = document.getElementById(elementId);
             const text = el.innerText;
             if(!text || text.includes("muncul di sini")) return;
-
             const dummy = document.createElement('textarea');
             document.body.appendChild(dummy);
             dummy.value = text;
             dummy.select();
             document.execCommand('copy');
             document.body.removeChild(dummy);
-
             const originalText = btn.innerText;
             btn.innerText = "COPIED! ✅";
             setTimeout(() => { btn.innerText = originalText; }, 1500);
@@ -211,19 +199,19 @@
         document.getElementById('btn-copy-text').addEventListener('click', function() { copyToClipboard('out-text', this); });
         document.getElementById('btn-copy-json').addEventListener('click', function() { copyToClipboard('out-json', this); });
 
-        // --- CLEAR LOGIC ---
-        document.getElementById('btn-clear-ext').addEventListener('click', function() {
-            if(confirm("Padam semua data Extraction?")) {
-                inputExt.value = "";
-                outHtml.innerText = "Kod HTML akan muncul di sini...";
-                outText.innerText = "Penerangan AI akan muncul di sini...";
+        // CLEAR LOGIC
+        document.getElementById('btn-clear-ext').addEventListener('click', () => {
+            if(confirm("Padam data Extraction?")) {
+                document.getElementById('input-ext').value = "";
+                document.getElementById('out-html').innerText = "Kod HTML akan muncul di sini...";
+                document.getElementById('out-text').innerText = "Penerangan AI akan muncul di sini...";
             }
         });
 
-        document.getElementById('btn-clear-beau').addEventListener('click', function() {
-            if(confirm("Padam semua data Beautify?")) {
-                inputBeau.value = "";
-                outJson.innerText = "JSON yang kemas akan muncul di sini...";
+        document.getElementById('btn-clear-beau').addEventListener('click', () => {
+            if(confirm("Padam data Beautify?")) {
+                document.getElementById('input-beau').value = "";
+                document.getElementById('out-json').innerText = "JSON yang kemas akan muncul di sini...";
             }
         });
     });
