@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v5.3.6 - The Glue</title>
+    <title>AI Multi-Separator v5.4 - Fail-Safe</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -25,11 +25,12 @@
         .btn-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .btn {
             padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer;
-            font-weight: bold; color: white; transition: 0.2s; font-size: 14px;
+            font-weight: bold; color: white; transition: 0.2s; font-size: 13px;
         }
         .btn-action { background: #6c5ce7; border-bottom: 4px solid #4834d4; }
         .btn-clear { background: #ff4757; border-bottom: 4px solid #b33939; }
         .btn-copy { background: #00b894; border-bottom: 4px solid #00876c; }
+        .btn-download { background: #0984e3; border-bottom: 4px solid #074b81; }
         .btn:active { transform: translateY(2px); border-bottom-width: 2px; }
 
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
@@ -40,15 +41,13 @@
         .column { display: flex; flex-direction: column; }
         .label { font-size: 13px; font-weight: bold; color: #6c5ce7; margin-bottom: 8px; text-transform: uppercase; }
 
-        textarea {
-            width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #ddd;
-            font-size: 12px; outline: none; resize: none; background: #fff; line-height: 1.5; font-family: monospace;
-        }
-        .display-box {
+        /* Pakai TEXTAREA supaya senang copy */
+        textarea.out-area {
             width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
             background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 12px;
-            overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
+            color: #2d3436; line-height: 1.5; outline: none; resize: none;
         }
+        textarea.out-area:focus { border-color: #6c5ce7; background: #fff; }
     </style>
 </head>
 <body>
@@ -61,26 +60,27 @@
 
     <!-- EXTRACTION -->
     <div id="page-extraction" class="mode-content active">
-        <h2>HTML Deep Hunter & Text Extractor (v5.3.6)</h2>
+        <h2>HTML Hunter & Text Extractor (v5.4)</h2>
         <div class="btn-row">
             <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
             <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-copy-html" class="btn btn-copy">COPY HTML PAGE 🌐</button>
+            <button id="btn-download-html" class="btn btn-download">DOWNLOAD .HTML 📥</button>
+            <button id="btn-copy-html" class="btn btn-copy">COPY HTML 🌐</button>
             <button id="btn-copy-text" class="btn btn-copy">COPY TEXT 💬</button>
         </div>
 
         <div class="grid-3">
             <div class="column">
                 <span class="label">Original Input</span>
-                <textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea>
+                <textarea id="input-ext" style="height: 550px;" placeholder="Paste respon AI kat sini..."></textarea>
             </div>
             <div class="column">
-                <span class="label">Pure HTML Code</span>
-                <div id="out-html" class="display-box">Kod HTML akan muncul di sini...</div>
+                <span class="label">Pure HTML Code (Click to Select)</span>
+                <textarea id="out-html" class="out-area" readonly placeholder="Kod HTML akan muncul di sini..."></textarea>
             </div>
             <div class="column">
-                <span class="label">Normal Text Extraction</span>
-                <div id="out-text" class="display-box" style="font-family: 'Fredoka', sans-serif;">Penerangan AI akan muncul di sini...</div>
+                <span class="label">Normal Text (Click to Select)</span>
+                <textarea id="out-text" class="out-area" readonly style="font-family: 'Fredoka', sans-serif;" placeholder="Penerangan AI akan muncul di sini..."></textarea>
             </div>
         </div>
     </div>
@@ -91,17 +91,17 @@
         <div class="btn-row">
             <button id="btn-run-beau" class="btn btn-action" style="background: #e17055;">BEAUTIFY CODE ✨</button>
             <button id="btn-clear-beau" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-copy-json" class="btn btn-copy">COPY JSON CODE 📂</button>
+            <button id="btn-copy-json" class="btn btn-copy">COPY JSON 📂</button>
         </div>
 
         <div class="grid-2">
             <div class="column">
                 <span class="label">Original JSON Input</span>
-                <textarea id="input-beau" placeholder="Paste data JSON di sini..."></textarea>
+                <textarea id="input-beau" style="height: 550px;" placeholder="Paste data JSON di sini..."></textarea>
             </div>
             <div class="column">
                 <span class="label">Beautified Code</span>
-                <div id="out-json" class="display-box" style="color: #0984e3; font-weight: bold;">JSON yang kemas akan muncul di sini...</div>
+                <textarea id="out-json" class="out-area" readonly style="color: #0984e3; font-weight: bold;" placeholder="JSON yang kemas akan muncul di sini..."></textarea>
             </div>
         </div>
     </div>
@@ -109,6 +109,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // --- TABS ---
     const tabExtBtn = document.getElementById('tab-ext-btn');
     const tabBeauBtn = document.getElementById('tab-beau-btn');
     const pageExt = document.getElementById('page-extraction');
@@ -124,7 +125,15 @@ document.addEventListener("DOMContentLoaded", function() {
         pageBeau.classList.add('active'); pageExt.classList.remove('active');
     });
 
-    // --- LOGIK EXTRACTION ---
+    // --- AUTO-SELECT ON CLICK ---
+    // Logik ni paling power. Klik je kotak, dia terus highlight semua.
+    document.querySelectorAll('.out-area').forEach(area => {
+        area.addEventListener('click', function() {
+            this.select();
+        });
+    });
+
+    // --- EXTRACTION LOGIC ---
     const btnRunExt = document.getElementById('btn-run-ext');
     btnRunExt.addEventListener('click', function() {
         const raw = document.getElementById('input-ext').value;
@@ -137,99 +146,74 @@ document.addEventListener("DOMContentLoaded", function() {
         let normalText = raw.replace(htmlRegex, "[HTML_REMOVED]");
 
         let cleanText = normalText.split("[HTML_REMOVED]")
-            .map(chunk => {
-                return chunk
-                    .replace(/```[a-zA-Z]*\n?/g, "") 
-                    .replace(/```/g, "")           
-                    .trim();
-            })
+            .map(chunk => chunk.replace(/```[a-zA-Z]*\n?/g, "").replace(/```/g, "").trim())
             .filter(chunk => chunk !== "")
             .join("\n\n---\n\n");
 
-        document.getElementById('out-html').innerText = htmlMatches ? htmlMatches.join("\n\n/* --- NEXT PAGE --- */\n\n") : "Kod HTML lengkap tidak ditemui.";
-        document.getElementById('out-text').innerText = cleanText || "Tiada teks penerangan ditemui.";
+        document.getElementById('out-html').value = htmlMatches ? htmlMatches.join("\n\n") : "Kod HTML tidak ditemui.";
+        document.getElementById('out-text').value = cleanText || "Tiada teks penerangan ditemui.";
     });
 
-    // --- LOGIK BEAUTIFY ---
+    // --- JSON BEAUTIFY ---
     const btnRunBeau = document.getElementById('btn-run-beau');
     btnRunBeau.addEventListener('click', function() {
         const raw = document.getElementById('input-beau').value.trim();
-        if(!raw) return alert("Sila masukkan data JSON!");
+        if(!raw) return alert("Sila masukkan JSON!");
         let clean = raw.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
         try {
             const obj = JSON.parse(clean);
-            document.getElementById('out-json').innerText = JSON.stringify(obj, null, 2);
+            document.getElementById('out-json').value = JSON.stringify(obj, null, 2);
         } catch (e) {
-            document.getElementById('out-json').innerText = "❌ RALAT JSON: " + e.message;
+            document.getElementById('out-json').value = "❌ RALAT JSON: " + e.message;
         }
     });
 
-    // --- ULTRA STABLE ASYNC COPY ---
-    async function copyToClipboard(elementId, btn) {
-        const el = document.getElementById(elementId);
-        const text = el.innerText;
-        
-        if(!text || text.includes("muncul di sini") || text.includes("tidak ditemui")) return;
+    // --- DOWNLOAD FUNCTION ---
+    document.getElementById('btn-download-html').addEventListener('click', function() {
+        const code = document.getElementById('out-html').value;
+        if(!code || code.includes("tidak ditemui") || code.includes("akan muncul")) return alert("Tiada kod untuk didownload!");
 
-        const originalText = btn.innerText;
+        const blob = new Blob([code], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
 
+    // --- COPY BUTTONS ---
+    function fastCopy(id, btn) {
+        const area = document.getElementById(id);
+        if(!area.value || area.value.includes("akan muncul")) return;
+        area.select();
         try {
-            // Cara 1: Modern Async Clipboard API (Support data besar)
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-                showSuccess(btn, originalText);
-            } else {
-                throw new Error("Clipboard API fail");
-            }
-        } catch (err) {
-            // Cara 2: Fallback Manual dengan Focus Priority
-            const dummy = document.createElement('textarea');
-            dummy.style.position = 'fixed';
-            dummy.style.left = '-9999px';
-            dummy.style.top = '0';
-            dummy.value = text;
-            document.body.appendChild(dummy);
-            dummy.focus();
-            dummy.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) showSuccess(btn, originalText);
-            } catch (fallbackErr) {
-                console.error("Copy failed:", fallbackErr);
-            }
-            document.body.removeChild(dummy);
+            document.execCommand('copy');
+            const ori = btn.innerText;
+            btn.innerText = "COPIED! ✅";
+            setTimeout(() => { btn.innerText = ori; }, 1500);
+        } catch(err) {
+            alert("Gagal copy secara automatik. Sila Right-Click > Copy.");
         }
     }
 
-    function showSuccess(btn, originalText) {
-        btn.innerText = "COPIED! ✅";
-        btn.style.background = "#2ecc71";
-        setTimeout(() => { 
-            btn.innerText = originalText; 
-            btn.style.background = "";
-        }, 1500);
-    }
+    document.getElementById('btn-copy-html').onclick = function() { fastCopy('out-html', this); };
+    document.getElementById('btn-copy-text').onclick = function() { fastCopy('out-text', this); };
+    document.getElementById('btn-copy-json').onclick = function() { fastCopy('out-json', this); };
 
-    // BIND BUTTONS
-    document.getElementById('btn-copy-html').addEventListener('click', function() { copyToClipboard('out-html', this); });
-    document.getElementById('btn-copy-text').addEventListener('click', function() { copyToClipboard('out-text', this); });
-    document.getElementById('btn-copy-json').addEventListener('click', function() { copyToClipboard('out-json', this); });
-
-    document.getElementById('btn-clear-ext').addEventListener('click', () => {
+    // --- CLEAR ---
+    document.getElementById('btn-clear-ext').onclick = () => {
         if(confirm("Padam semua?")) {
             document.getElementById('input-ext').value = "";
-            document.getElementById('out-html').innerText = "Kod HTML akan muncul di sini...";
-            document.getElementById('out-text').innerText = "Penerangan AI akan muncul di sini...";
+            document.getElementById('out-html').value = "";
+            document.getElementById('out-text').value = "";
         }
-    });
+    };
 
-    document.getElementById('btn-clear-beau').addEventListener('click', () => {
-        if(confirm("Padam data Beautify?")) {
-            document.getElementById('input-beau').value = "";
-            document.getElementById('out-json').innerText = "JSON yang kemas akan muncul di sini...";
-        }
-    });
+    document.getElementById('btn-clear-beau').onclick = () => {
+        document.getElementById('input-beau').value = "";
+        document.getElementById('out-json').value = "";
+    };
 });
 </script>
 </body>
