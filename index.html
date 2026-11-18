@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Separator v1.3 - JSON Edition</title>
+    <title>AI Code Separator v1.4 - Smart JSON Repair</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -32,7 +33,7 @@
             min-width: 150px;
         }
         .btn-process { background: #6c5ce7; box-shadow: 0 6px 0 #4834d4; }
-        .btn-json { background: #f1c40f; color: #2d3436; box-shadow: 0 6px 0 #d4ac0d; } /* New Button Style */
+        .btn-json { background: #f1c40f; color: #2d3436; box-shadow: 0 6px 0 #d4ac0d; }
         .btn-copy-raw { background: #00b894; box-shadow: 0 6px 0 #00876c; }
         .btn-clear { background: #ff4757; box-shadow: 0 6px 0 #b33939; }
         
@@ -42,7 +43,7 @@
         @media (max-width: 768px) { .output-grid { grid-template-columns: 1fr; } }
 
         .box { background: #f1f2f6; border-radius: 25px; padding: 20px; border: 1px solid #ddd; }
-        .full-width { grid-column: 1 / -1; background: #ebf3ff; border: 2px dashed #6c5ce7; } /* Special style for JSON box */
+        .full-width { grid-column: 1 / -1; background: #ebf3ff; border: 2px dashed #6c5ce7; }
         
         .box-title { 
             font-size: 14px; font-weight: bold; color: #6c5ce7; margin-bottom: 12px; 
@@ -58,11 +59,10 @@
             height: 350px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; word-break: break-word;
             font-family: 'Courier New', Courier, monospace; color: #333; line-height: 1.5;
         }
-        .json-mode { color: #2e86de; font-weight: bold; height: 500px; } /* Larger height for JSON */
+        .json-mode { color: #2e86de; font-weight: bold; height: 500px; }
         .text-mode { font-family: 'Fredoka', sans-serif !important; font-size: 14px; }
-        
-        /* Error state for JSON */
-        .error-json { color: #e74c3c; border: 1px solid #ff7675; }
+        .error-json { color: #e74c3c; border: 2px solid #ff7675; background: #fff5f5; }
+        .success-fix { border: 2px solid #27ae60; background: #f0fff4; }
     </style>
 </head>
 <body>
@@ -75,13 +75,12 @@
         
         <div class="action-bars">
             <button class="btn btn-process" onclick="separateNow()">ASINGKAN KOD 🚀</button>
-            <button class="btn btn-json" onclick="beautifyJSON()">KEMASKAN JSON ✨</button>
+            <button class="btn btn-json" onclick="beautifyAndRepairJSON()">SEMAK & KEMAS JSON ✨</button>
             <button class="btn btn-copy-raw" onclick="copyToClipboard(event, 'raw-input')">SALIN ASAL 📋</button>
             <button class="btn btn-clear" onclick="clearAll()">PADAM SEMUA 🗑️</button>
         </div>
 
         <div class="output-grid">
-            <!-- Box 1: Code -->
             <div class="box">
                 <div class="box-title">
                     <span>CLEAN CODE 💎</span>
@@ -90,7 +89,6 @@
                 <div id="code-output" class="display-area">Kod akan muncul di sini...</div>
             </div>
 
-            <!-- Box 2: Normal Text -->
             <div class="box">
                 <div class="box-title">
                     <span>NORMAL TEXT 💬</span>
@@ -99,20 +97,19 @@
                 <div id="text-output" class="display-area text-mode">Borak biasa akan muncul di sini...</div>
             </div>
 
-            <!-- Box 3: JSON Formatter (New Section) -->
             <div class="box full-width">
                 <div class="box-title">
-                    <span>JSON BEAUTIFIER 📂 (Ruang Besar & Kemas)</span>
+                    <span id="json-status">JSON BEAUTIFIER & REPAIR 📂</span>
                     <button class="copy-small" style="background: #27ae60;" onclick="copyToClipboard(event, 'json-output')">Copy Clean JSON</button>
                 </div>
-                <div id="json-output" class="display-area json-mode">Paste data JSON dan tekan butang 'KEMASKAN JSON' di atas...</div>
+                <div id="json-output" class="display-area json-mode">Paste data JSON dan tekan butang 'SEMAK & KEMAS JSON' di atas...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Fungsi asal untuk asingkan kod dan teks
+    // FUNGSI UTAMA: SEPARATE CODE & TEXT
     function separateNow() {
         const input = document.getElementById('raw-input').value;
         const codeOutput = document.getElementById('code-output');
@@ -141,26 +138,44 @@
         textOutput.innerText = cleanText.trim() || "Tiada teks dijumpai.";
     }
 
-    // FUNGSI BARU: Untuk kemaskan JSON
-    function beautifyJSON() {
-        const input = document.getElementById('raw-input').value.trim();
+    // FUNGSI BARU: SMART REPAIR & BEAUTIFY JSON
+    function beautifyAndRepairJSON() {
+        let input = document.getElementById('raw-input').value.trim();
         const jsonOutput = document.getElementById('json-output');
+        const jsonStatus = document.getElementById('json-status');
 
         if (!input) {
             alert("Sila masukkan data JSON dulu!");
             return;
         }
 
+        // 1. Bersihkan sebarang backticks AI
+        let cleanInput = input.replace(/```json/g, "").replace(/```/g, "").trim();
+
+        // 2. PROSES REPAIR (Bedah JSON yang rosak)
         try {
-            // Cuba parse input kepada object
-            const jsonObj = JSON.parse(input);
-            // Susun balik dengan indentasi 2 space
+            let repaired = cleanInput
+                .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1') // Buang comments
+                .replace(/['’‘]/g, '"') // Tukar single quotes/smart quotes ke double quotes
+                .replace(/,\s*([\]}])/g, '$1') // Buang trailing commas (koma hujung yang lebih)
+                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":'); // Pastikan keys ada quotes
+
+            // 3. CUBA PARSE
+            const jsonObj = JSON.parse(repaired);
             const formatted = JSON.stringify(jsonObj, null, 2);
+            
             jsonOutput.innerText = formatted;
             jsonOutput.classList.remove('error-json');
+            jsonOutput.classList.add('success-fix');
+            jsonStatus.innerText = "JSON BEAUTIFIER 📂 - (Status: ✅ Berjaya Dibaiki & Kemas)";
         } catch (e) {
-            jsonOutput.innerText = "❌ RALAT JSON: Data bukan format JSON yang sah atau ada silap tanda (comma/bracket). \n\nError: " + e.message;
+            // Jika masih gagal, tunjuk error tapi bagi hint
+            jsonOutput.innerText = "❌ RALAT KRITIKAL: JSON terlalu rosak untuk dibaiki automatik.\n\n" +
+                                 "Sebab: " + e.message + "\n\n" +
+                                 "Tips: Pastikan bracket { } atau [ ] cukup pasangan dia.";
             jsonOutput.classList.add('error-json');
+            jsonOutput.classList.remove('success-fix');
+            jsonStatus.innerText = "JSON BEAUTIFIER 📂 - (Status: ❌ Ralat Syntax)";
         }
     }
 
@@ -169,16 +184,21 @@
             document.getElementById('raw-input').value = "";
             document.getElementById('code-output').innerText = "Kod akan muncul di sini...";
             document.getElementById('text-output').innerText = "Borak biasa akan muncul di sini...";
-            document.getElementById('json-output').innerText = "Paste data JSON dan tekan butang 'KEMASKAN JSON' di atas...";
-            document.getElementById('json-output').classList.remove('error-json');
+            document.getElementById('json-output').innerText = "Paste data JSON dan tekan butang 'SEMAK & KEMAS JSON' di atas...";
+            document.getElementById('json-output').classList.remove('error-json', 'success-fix');
+            document.getElementById('json-status').innerText = "JSON BEAUTIFIER & REPAIR 📂";
         }
     }
 
     function copyToClipboard(e, elementId) {
         const el = document.getElementById(elementId);
-        const text = el.tagName === "TEXTAREA" ? el.value : el.innerText;
+        if (!el) return;
         
-        if (!text || text.includes("akan muncul di sini") || text.includes("Paste data JSON") || text === "Tiada kod dijumpai.") return;
+        const text = (el.tagName === "TEXTAREA") ? el.value : el.innerText;
+        
+        if (!text || text.includes("akan muncul di sini") || text.includes("Paste data JSON") || text === "Tiada kod dijumpai.") {
+            return;
+        }
         
         navigator.clipboard.writeText(text).then(() => {
             const btn = e.target;
@@ -186,7 +206,7 @@
             btn.innerText = "COPIED! ✅";
             setTimeout(() => { btn.innerText = originalText; }, 2000);
         }).catch(err => {
-            console.error("Gagal copy: ", err);
+            alert("Gagal copy: " + err);
         });
     }
 </script>
