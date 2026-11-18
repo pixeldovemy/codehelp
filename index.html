@@ -123,11 +123,7 @@
             return;
         }
 
-        const codeRegex = /
-
-/* --- NEXT BLOCK --- */
-
-/g;
+        const codeRegex = /```[\s\S]*?```/g;
         let codeMatches = input.match(codeRegex);
         
         let allCode = "";
@@ -135,11 +131,7 @@
 
         if (codeMatches) {
             codeMatches.forEach((match, index) => {
-                let singleCode = match.replace(/
-
-/* --- NEXT BLOCK --- */
-
-/g, "");
+                let singleCode = match.replace(/```[a-z]*\n?/gi, "").replace(/```/g, "");
                 allCode += singleCode + (index < codeMatches.length - 1 ? "\n\n/* --- NEXT BLOCK --- */\n\n" : "");
                 cleanText = cleanText.replace(match, "");
             });
