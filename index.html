@@ -1,186 +1,169 @@
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Separator v3.0 - Ultimate Splitter</title>
+    <title>AI Multi-Separator v4.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { color: #6c5ce7; text-align: center; margin-top: 0; }
+        body { background: #eef2f7; margin: 0; padding: 20px; }
+        .wrapper { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        h1 { color: #6c5ce7; text-align: center; margin-bottom: 20px; }
         
         textarea#raw-input { 
-            width: 100%; height: 150px; padding: 15px; border-radius: 15px; border: 2px solid #ddd;
-            font-size: 14px; margin-bottom: 15px; outline: none; resize: vertical;
+            width: 100%; height: 160px; padding: 15px; border-radius: 20px; border: 2px solid #ddd;
+            font-size: 14px; margin-bottom: 20px; outline: none; resize: vertical;
         }
-        
-        .main-btns { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .btn { 
-            flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; 
-            font-weight: bold; color: white; transition: 0.2s; min-width: 150px;
+
+        .btn-group { display: flex; gap: 10px; margin-bottom: 25px; }
+        .btn-main { 
+            flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; 
+            font-weight: bold; color: white; font-size: 14px; transition: 0.3s;
         }
-        .btn-blue { background: #6c5ce7; }
-        .btn-green { background: #00b894; }
-        .btn-red { background: #ff4757; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-process { background: #6c5ce7; }
+        .btn-clear { background: #ff4757; }
+        .btn-main:hover { opacity: 0.9; transform: scale(0.98); }
 
-        .output-section { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media(min-width: 768px) { .output-section { grid-template-columns: 1fr 1fr; } }
-        .full { grid-column: 1 / -1; }
-
-        .box { background: #f9f9f9; border: 1px solid #eee; border-radius: 15px; padding: 15px; }
-        .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .box-header span { font-weight: bold; color: #6c5ce7; font-size: 14px; }
+        .output-container { display: flex; flex-direction: column; gap: 20px; }
+        .out-box { background: #f8f9fa; border: 1px solid #eee; border-radius: 20px; padding: 20px; }
+        .out-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .out-header span { font-weight: bold; color: #6c5ce7; font-size: 15px; }
         
-        .copy-btn { background: #f1f2f6; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
-        .copy-btn:hover { background: #6c5ce7; color: white; }
+        .copy-btn { 
+            background: #6c5ce7; color: white; border: none; padding: 7px 15px; 
+            border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: bold;
+        }
 
-        .res-area { 
-            background: white; border: 1px solid #eee; padding: 10px; border-radius: 10px; 
-            height: 250px; overflow-y: auto; font-family: monospace; font-size: 13px; white-space: pre-wrap;
+        .display { 
+            background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 15px; 
+            height: 250px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; 
+            font-size: 13px; white-space: pre-wrap; color: #333; line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>AI Splitter v3.0 ✂️</h1>
+<div class="wrapper">
+    <h1>AI Splitter v4.0 ✂️</h1>
     
-    <textarea id="raw-input" placeholder="Paste respon AI kat sini..."></textarea>
+    <textarea id="raw-input" placeholder="Paste respon AI kat sini... (Pastikan ada simbol ``` kalau kod)"></textarea>
     
-    <div class="main-btns">
-        <button id="btn-split" class="btn btn-blue">ASINGKAN SEMUA 🚀</button>
-        <button id="btn-copy-all" class="btn btn-green">SALIN SEMUA ASAL 📋</button>
-        <button id="btn-clear" class="btn btn-red">RESET 🗑️</button>
+    <div class="btn-group">
+        <button id="process-all" class="btn-main btn-process">ASINGKAN SEKARANG 🚀</button>
+        <button id="reset-all" class="btn-main btn-clear">PADAM SEMUA 🗑️</button>
     </div>
 
-    <div class="output-section">
-        <!-- Kotak Teks -->
-        <div class="box">
-            <div class="box-header">
-                <span>💬 TEXT EXTRACTION</span>
-                <button id="copy-text" class="copy-btn">COPY TEXT</button>
-            </div>
-            <div id="out-text" class="res-area">Penerangan AI...</div>
-        </div>
-
-        <!-- Kotak JSON -->
-        <div class="box">
-            <div class="box-header">
-                <span>📂 JSON BEAUTIFIED</span>
-                <button id="copy-json" class="copy-btn">COPY JSON</button>
-            </div>
-            <div id="out-json" class="res-area">Data JSON...</div>
-        </div>
-
-        <!-- Kotak HTML -->
-        <div class="box full">
-            <div class="box-header">
+    <div class="output-container">
+        <!-- 1. HTML Extraction -->
+        <div class="out-box">
+            <div class="out-header">
                 <span>🌐 HTML PAGE CODE</span>
-                <button id="copy-html" class="copy-btn">COPY HTML</button>
+                <button class="copy-btn" onclick="copyResult('html-res', this)">COPY HTML</button>
             </div>
-            <div id="out-html" class="res-area">Kod HTML akan muncul di sini...</div>
+            <div id="html-res" class="display">Hasil kod HTML akan muncul di sini...</div>
+        </div>
+
+        <!-- 2. Text Extraction -->
+        <div class="out-box">
+            <div class="out-header">
+                <span>💬 TEXT EXTRACTION</span>
+                <button class="copy-btn" onclick="copyResult('text-res', this)">COPY TEXT</button>
+            </div>
+            <div id="text-res" class="display" style="font-family: 'Fredoka', sans-serif;">Penerangan AI akan muncul di sini...</div>
+        </div>
+
+        <!-- 3. JSON Beautifier -->
+        <div class="out-box">
+            <div class="out-header">
+                <span>📂 JSON BEAUTIFIED</span>
+                <button class="copy-btn" onclick="copyResult('json-res', this)">COPY JSON</button>
+            </div>
+            <div id="json-res" class="display" style="color: #0984e3;">Data JSON yang kemas akan muncul di sini...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // FUNGSI COPY (Confirm Jalan)
-    function copyDulu(elementId, btn) {
-        const text = document.getElementById(elementId).innerText;
-        if (!text || text.includes("Penerangan AI") || text.includes("Kod HTML")) return;
+    // FUNGSI COPY UNIVERSAL
+    function copyResult(id, btn) {
+        const target = document.getElementById(id);
+        const text = target.innerText;
+        
+        if (!text || text.includes("akan muncul di sini")) return;
 
-        const dummy = document.createElement("textarea");
-        document.body.appendChild(dummy);
-        dummy.value = text;
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
 
-        const ori = btn.innerText;
+        const oriText = btn.innerText;
         btn.innerText = "COPIED! ✅";
-        setTimeout(() => btn.innerText = ori, 1500);
+        btn.style.background = "#2ecc71";
+        setTimeout(() => {
+            btn.innerText = oriText;
+            btn.style.background = "#6c5ce7";
+        }, 1500);
     }
 
-    // FUNGSI UTAMA
-    window.onload = function() {
-        // 1. Tombol Split
-        document.getElementById('btn-split').onclick = function() {
-            const input = document.getElementById('raw-input').value;
-            if(!input.trim()) return alert("Masukkan kod dulu bos!");
+    // LOGIK UTAMA
+    document.getElementById('process-all').onclick = function() {
+        const raw = document.getElementById('raw-input').value.trim();
+        if (!raw) return alert("Sila paste dulu bro!");
 
-            // Regex cari
+        const htmlBox = document.getElementById('html-res');
+        const textBox = document.getElementById('text-res');
+        const jsonBox = document.getElementById('json-res');
 
-/* --- NEXT BLOCK --- */
+        // Pecahkan ikut simbol ```
+        const parts = raw.split(/```/);
+        
+        let htmlList = [];
+        let textList = [];
+        let jsonList = [];
 
-const chunks = input.split(/(
-
-/* --- NEXT BLOCK --- */
-
-)/g);
-            
-            let htmlContent = [];
-            let jsonContent = [];
-            let textContent = [];
-
-            chunks.forEach(chunk => {
-                if (chunk.startsWith('
-
-/* --- NEXT BLOCK --- */
-
-[a-zA-Z]*\n?/, '').replace(/
-
-/* --- NEXT BLOCK --- */
-
-$/, '').trim();
-                    
-                    // Categorize: JSON atau HTML?
-                    if (clean.includes('<!DOCTYPE') || clean.includes('<html') || (clean.includes('<div') && clean.includes('</div>'))) {
-                        htmlContent.push(clean);
-                    } else if (clean.startsWith('{') || clean.startsWith('[')) {
-                        try {
-                            // Cuba beautify JSON terus
-                            let obj = JSON.parse(clean.replace(/,\s*([\]}])/g, '$1'));
-                            jsonContent.push(JSON.stringify(obj, null, 2));
-                        } catch(e) {
-                            jsonContent.push(clean);
-                        }
-                    } else {
-                        htmlContent.push(clean); // Default kod masuk HTML
+        parts.forEach((part, index) => {
+            // Index genap (0, 2, 4...) selalunya teks luar backticks
+            if (index % 2 === 0) {
+                if (part.trim()) textList.push(part.trim());
+            } 
+            // Index ganjil (1, 3, 5...) selalunya dalam backticks (KOD)
+            else {
+                let cleanCode = part.replace(/^[a-zA-Z]+\n/, '').trim(); // Buang label bahasa (html/json)
+                
+                // Cek kalau kod ni JSON
+                if (cleanCode.startsWith('{') || cleanCode.startsWith('[')) {
+                    try {
+                        const parsed = JSON.parse(cleanCode);
+                        jsonList.push(JSON.stringify(parsed, null, 2));
+                    } catch (e) {
+                        jsonList.push(cleanCode); // Kalau parse gagal, letak raw JSON
                     }
-                } else {
-                    if(chunk.trim()) textContent.push(chunk.trim());
+                } 
+                // Cek kalau kod ni HTML
+                else if (cleanCode.toLowerCase().includes('<html') || cleanCode.toLowerCase().includes('<!doctype') || cleanCode.includes('</div>')) {
+                    htmlList.push(cleanCode);
                 }
-            });
+                // Selain tu masuk HTML box juga (sebagai General Code)
+                else {
+                    htmlList.push(cleanCode);
+                }
+            }
+        });
 
-            // Masukkan dalam kotak
-            document.getElementById('out-html').innerText = htmlContent.join("\n\n<!-- NEXT BLOCK -->\n\n") || "Tiada kod HTML.";
-            document.getElementById('out-json').innerText = jsonContent.join("\n\n") || "Tiada data JSON.";
-            document.getElementById('out-text').innerText = textContent.join("\n\n") || "Tiada teks penerangan.";
-        };
+        // Paparkan hasil
+        htmlBox.innerText = htmlList.length > 0 ? htmlList.join("\n\n/* --- NEXT BLOCK --- */\n\n") : "Tiada kod HTML ditemui.";
+        textBox.innerText = textList.length > 0 ? textList.join("\n\n") : "Tiada teks ditemui.";
+        jsonBox.innerText = jsonList.length > 0 ? jsonList.join("\n\n") : "Tiada JSON ditemui.";
+    };
 
-        // 2. Tombol Copy Individual
-        document.getElementById('copy-text').onclick = function() { copyDulu('out-text', this); };
-        document.getElementById('copy-json').onclick = function() { copyDulu('out-json', this); };
-        document.getElementById('copy-html').onclick = function() { copyDulu('out-html', this); };
-
-        // 3. Tombol Copy Raw
-        document.getElementById('btn-copy-all').onclick = function() {
-            const raw = document.getElementById('raw-input');
-            raw.select();
-            document.execCommand("copy");
-            const ori = this.innerText;
-            this.innerText = "COPIED RAW! ✅";
-            setTimeout(() => this.innerText = ori, 1500);
-        };
-
-        // 4. Tombol Clear
-        document.getElementById('btn-clear').onclick = function() {
-            if(confirm("Padam semua?")) location.reload();
-        };
+    // TOMBOL RESET
+    document.getElementById('reset-all').onclick = function() {
+        if (confirm("Reset semua data?")) {
+            location.reload();
+        }
     };
 </script>
 </body>
