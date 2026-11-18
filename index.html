@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Multi-Separator v5.3.3 - Deep Hunter</title>
+<title>AI Multi-Separator v5.3.5 - Phantom Fix</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -61,7 +61,7 @@ overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
 
 <!-- EXTRACTION -->
 <div id="page-extraction" class="mode-content active">
-<h2>HTML Deep Hunter & Text Extractor</h2>
+<h2>HTML Hunter & Text Extractor (Stable v5.3.5)</h2>
 <div class="btn-row">
 <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
 <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
@@ -72,14 +72,14 @@ overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
 <div class="grid-3">
 <div class="column">
 <span class="label">Original Input</span>
-<textarea id="input-ext" placeholder="Paste respon AI yang ada kod HTML lengkap..."></textarea>
+<textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea>
 </div>
 <div class="column">
-<span class="label">Pure HTML Code (Header Match)</span>
-<div id="out-html" class="display-box">Kod dari DOCTYPE + HTML + HEAD akan muncul di sini...</div>
+<span class="label">Pure HTML Code</span>
+<div id="out-html" class="display-box">Kod HTML akan muncul di sini...</div>
 </div>
 <div class="column">
-<span class="label">Normal Text (Residue)</span>
+<span class="label">Normal Text Extraction</span>
 <div id="out-text" class="display-box" style="font-family: 'Fredoka', sans-serif;">Penerangan AI akan muncul di sini...</div>
 </div>
 </div>
@@ -89,7 +89,7 @@ overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
 <div id="page-beautify" class="mode-content">
 <h2>JSON Beautifier Specialist</h2>
 <div class="btn-row">
-<button id="btn-run-beau" class="btn btn-action" style="background: #e17055; border-color: #c0392b;">BEAUTIFY CODE ✨</button>
+<button id="btn-run-beau" class="btn btn-action" style="background: #e17055;">BEAUTIFY CODE ✨</button>
 <button id="btn-clear-beau" class="btn btn-clear">PADAM SEMUA 🗑️</button>
 <button id="btn-copy-json" class="btn btn-copy">COPY JSON CODE 📂</button>
 </div>
@@ -124,23 +124,19 @@ tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active');
 pageBeau.classList.add('active'); pageExt.classList.remove('active');
 });
 
-// --- LOGIK DEEP HUNTER ---
+// --- LOGIK EXTRACTION (PHANTOM FIX) ---
 const btnRunExt = document.getElementById('btn-run-ext');
 btnRunExt.addEventListener('click', function() {
 const raw = document.getElementById('input-ext').value;
 if(!raw.trim()) return alert("Sila masukkan input!");
 
-// Regex dengan Start Point Spesifik: DOCTYPE -> HTML -> HEAD
-// Dan End Point Spesifik: </script></body></html>
-const htmlRegex = /<!DOCTYPE html>\s*<html[\s\S]*?>\s*<head>[\s\S]*?<\/script>\s*<\/body>\s*<\/html>/gi;
+// Guna New RegExp dengan String supaya browser tak keliru dengan tag penutup
+const pattern = "<!DOCTYPE html>\\s*<html[\\s\\S]*?>[\\s\\S]*?<\\/script>\\s*<\\/body>\\s*<\\/html>";
+const htmlRegex = new RegExp(pattern, "gi");
 
-// 1. Ambil Blok HTML
 const htmlMatches = raw.match(htmlRegex);
-
-// 2. Buat Teks Bersih: Buang blok HTML dari input asal
 let normalText = raw.replace(htmlRegex, "[HTML_REMOVED]");
 
-// 3. Bersihkan sisa markdown dan markers
 let cleanText = normalText.split("[HTML_REMOVED]")
 .map(chunk => {
 return chunk
@@ -151,10 +147,11 @@ return chunk
 .filter(chunk => chunk !== "")
 .join("\n\n---\n\n");
 
-document.getElementById('out-html').innerText = htmlMatches ? htmlMatches.join("\n\n/* --- NEXT PAGE --- */\n\n") : "Kod HTML dengan header lengkap tidak ditemui.";
+document.getElementById('out-html').innerText = htmlMatches ? htmlMatches.join("\n\n/* --- NEXT PAGE --- */\n\n") : "Kod HTML lengkap tidak ditemui.";
 document.getElementById('out-text').innerText = cleanText || "Tiada teks penerangan ditemui.";
 });
 
+// --- LOGIK BEAUTIFY ---
 const btnRunBeau = document.getElementById('btn-run-beau');
 btnRunBeau.addEventListener('click', function() {
 const raw = document.getElementById('input-beau').value.trim();
@@ -168,6 +165,7 @@ document.getElementById('out-json').innerText = "❌ RALAT JSON: " + e.message;
 }
 });
 
+// --- COPY FUNCTION ---
 function copyToClipboard(elementId, btn) {
 const el = document.getElementById(elementId);
 const text = el.innerText;
@@ -177,7 +175,6 @@ const dummy = document.createElement('textarea');
 dummy.value = text;
 document.body.appendChild(dummy);
 dummy.select();
-dummy.setSelectionRange(0, 99999);
 
 try {
 document.execCommand('copy');
@@ -199,9 +196,9 @@ document.getElementById('btn-copy-text').addEventListener('click', function() { 
 document.getElementById('btn-copy-json').addEventListener('click', function() { copyToClipboard('out-json', this); });
 
 document.getElementById('btn-clear-ext').addEventListener('click', () => {
-if(confirm("Padam data Extraction?")) {
+if(confirm("Padam semua?")) {
 document.getElementById('input-ext').value = "";
-document.getElementById('out-html').innerText = "Kod dari DOCTYPE + HTML + HEAD akan muncul di sini...";
+document.getElementById('out-html').innerText = "Kod HTML akan muncul di sini...";
 document.getElementById('out-text').innerText = "Penerangan AI akan muncul di sini...";
 }
 });
