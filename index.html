@@ -3,218 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v5.2 - The Surgeon</title>
+    <title>AI Code Separator v1.1 - Studio AI Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 20px; }
-        .wrapper { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        
-        .nav-tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 3px solid #eee; padding-bottom: 15px; }
-        .nav-btn { 
-            flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; 
-            font-weight: bold; font-size: 16px; transition: 0.3s; background: #dfe6e9; color: #636e72;
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
-        .nav-btn.active { background: #6c5ce7; color: white; }
-
-        .mode-content { display: none; }
-        .mode-content.active { display: block; }
-
-        h2 { color: #6c5ce7; margin-top: 0; font-size: 22px; margin-bottom: 15px; }
-        
-        .btn-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn { 
-            padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; 
-            font-weight: bold; color: white; transition: 0.2s; font-size: 14px;
+        .main-wrapper { max-width: 1000px; width: 100%; }
+        .container { 
+            background: rgba(255, 255, 255, 0.96); padding: 30px; border-radius: 40px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2); border: 8px solid #fff;
         }
-        .btn-action { background: #6c5ce7; border-bottom: 4px solid #4834d4; }
-        .btn-clear { background: #ff4757; border-bottom: 4px solid #b33939; }
-        .btn-copy { background: #00b894; border-bottom: 4px solid #00876c; }
-        .btn:active { transform: translateY(2px); border-bottom-width: 2px; }
-
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        @media (max-width: 1000px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
-
-        .column { display: flex; flex-direction: column; }
-        .label { font-size: 13px; font-weight: bold; color: #6c5ce7; margin-bottom: 8px; text-transform: uppercase; }
+        h1 { color: #6c5ce7; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: -1px; }
         
+        /* INPUT AREA */
         textarea { 
-            width: 100%; height: 500px; padding: 15px; border-radius: 15px; border: 2px solid #ddd;
-            font-size: 13px; outline: none; resize: none; background: #fff; line-height: 1.5;
+            width: 100%; height: 200px; padding: 20px; border-radius: 25px; border: 3px solid #eee;
+            font-size: 15px; outline: none; margin-bottom: 15px; resize: vertical; transition: 0.3s;
+            background: #fdfdfd;
         }
-        .display-box { 
-            width: 100%; height: 500px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
-            background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 13px; 
-            overflow-y: auto; white-space: pre-wrap; color: #2d3436; line-height: 1.5;
+        textarea:focus { border-color: #6c5ce7; background: #fff; box-shadow: 0 10px 20px rgba(108, 92, 231, 0.1); }
+
+        /* BUTTON CONTROLS */
+        .action-bars { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .btn { 
+            flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; 
+            font-size: 16px; font-weight: bold; transition: 0.2s; color: white;
+            min-width: 150px;
         }
+        .btn-process { background: #6c5ce7; box-shadow: 0 6px 0 #4834d4; }
+        .btn-copy-raw { background: #00b894; box-shadow: 0 6px 0 #00876c; }
+        .btn-clear { background: #ff4757; box-shadow: 0 6px 0 #b33939; }
+        
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .btn:hover { filter: brightness(1.1); }
+
+        /* OUTPUT GRID */
+        .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .output-grid { grid-template-columns: 1fr; } }
+
+        .box { background: #f1f2f6; border-radius: 25px; padding: 20px; border: 1px solid #ddd; }
+        .box-title { 
+            font-size: 14px; font-weight: bold; color: #6c5ce7; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            text-transform: uppercase;
+        }
+        .copy-small { 
+            background: #6c5ce7; color: white; border: none; padding: 6px 12px; 
+            border-radius: 10px; font-size: 12px; cursor: pointer; 
+        }
+
+        .display-area { 
+            background: #fff; border-radius: 15px; padding: 15px; border: 1px solid #eee; 
+            height: 350px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; word-break: break-word;
+            font-family: 'Courier New', Courier, monospace; color: #333; line-height: 1.5;
+        }
+        .text-mode { font-family: 'Fredoka', sans-serif !important; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <div class="nav-tabs">
-        <button id="tab-ext-btn" class="nav-btn active">1. EXTRACTION MODE ✂️</button>
-        <button id="tab-beau-btn" class="nav-btn">2. BEAUTIFY MODE ✨</button>
-    </div>
-
-    <!-- EXTRACTION PAGE -->
-    <div id="page-extraction" class="mode-content active">
-        <h2>Specialist HTML & Text Extractor</h2>
-        <div class="btn-row">
-            <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
-            <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-copy-html" class="btn btn-copy">COPY HTML 🌐</button>
-            <button id="btn-copy-text" class="btn btn-copy">COPY TEXT 💬</button>
-        </div>
+<div class="main-wrapper">
+    <div class="container">
+        <h1>Code Separator ✂️</h1>
         
-        <div class="grid-3">
-            <div class="column">
-                <span class="label">Original Input</span>
-                <textarea id="input-ext" placeholder="Paste respon AI di sini..."></textarea>
-            </div>
-            <div class="column">
-                <span class="label">HTML Page Code (Pure)</span>
-                <div id="out-html" class="display-box">Kod HTML akan muncul di sini...</div>
-            </div>
-            <div class="column">
-                <span class="label">Normal Text (Extraction)</span>
-                <div id="out-text" class="display-box" style="font-family: 'Fredoka', sans-serif;">Penerangan AI akan muncul di sini...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- BEAUTIFY PAGE -->
-    <div id="page-beautify" class="mode-content">
-        <h2>JSON Beautifier Specialist</h2>
-        <div class="btn-row">
-            <button id="btn-run-beau" class="btn btn-action" style="background: #e17055; border-color: #c0392b;">BEAUTIFY CODE ✨</button>
-            <button id="btn-clear-beau" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-copy-json" class="btn btn-copy">COPY JSON CODE 📂</button>
+        <!-- INPUT UTAMA -->
+        <textarea id="raw-input" placeholder="Paste respon AI yang bercampur kod dan teks kat sini..."></textarea>
+        
+        <!-- CONTROL BUTTONS -->
+        <div class="action-bars">
+            <button class="btn btn-process" onclick="separateNow()">ASINGKAN KOD 🚀</button>
+            <button class="btn btn-copy-raw" onclick="copyToClipboard('raw-input')">SALIN ASAL 📋</button>
+            <button class="btn btn-clear" onclick="clearAll()">PADAM SEMUA 🗑️</button>
         </div>
 
-        <div class="grid-2">
-            <div class="column">
-                <span class="label">Original JSON Input</span>
-                <textarea id="input-beau" placeholder="Paste data JSON di sini..."></textarea>
+        <div class="output-grid">
+            <!-- RUANG CLEAN CODE -->
+            <div class="box">
+                <div class="box-title">
+                    <span>CLEAN CODE 💎</span>
+                    <button class="copy-small" onclick="copyToClipboard('code-output')">Copy Code</button>
+                </div>
+                <div id="code-output" class="display-area">Kod akan muncul di sini...</div>
             </div>
-            <div class="column">
-                <span class="label">Beautified Code</span>
-                <div id="out-json" class="display-box" style="color: #0984e3; font-weight: bold;">JSON yang kemas akan muncul di sini...</div>
+
+            <!-- RUANG NORMAL TEXT -->
+            <div class="box">
+                <div class="box-title">
+                    <span>NORMAL TEXT 💬</span>
+                    <button class="copy-small" onclick="copyToClipboard('text-output')">Copy Text</button>
+                </div>
+                <div id="text-output" class="display-area text-mode">Borak biasa akan muncul di sini...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // TAB LOGIC
-        const tabExtBtn = document.getElementById('tab-ext-btn');
-        const tabBeauBtn = document.getElementById('tab-beau-btn');
-        const pageExt = document.getElementById('page-extraction');
-        const pageBeau = document.getElementById('page-beautify');
+    function separateNow() {
+        const input = document.getElementById('raw-input').value;
+        const codeOutput = document.getElementById('code-output');
+        const textOutput = document.getElementById('text-output');
 
-        tabExtBtn.addEventListener('click', () => {
-            tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active');
-            pageExt.classList.add('active'); pageBeau.classList.remove('active');
-        });
-
-        tabBeauBtn.addEventListener('click', () => {
-            tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active');
-            pageBeau.classList.add('active'); pageExt.classList.remove('active');
-        });
-
-        // EXTRACTION LOGIC (THE SURGEON)
-        const btnRunExt = document.getElementById('btn-run-ext');
-        btnRunExt.addEventListener('click', function() {
-            const raw = document.getElementById('input-ext').value.trim();
-            if(!raw) return alert("Sila masukkan input!");
-
-            // 1. Pecahkan ikut simbol backticks
-            const parts = raw.split(/```/);
-            let rawCodeBlocks = [];
-            let rawTextBlocks = [];
-
-            parts.forEach((part, index) => {
-                if (index % 2 !== 0) {
-                    // Kandungan DALAM backticks (Potential Code)
-                    let clean = part.replace(/^[a-zA-Z]*\n/, '').trim();
-                    if(clean) rawCodeBlocks.push(clean);
-                } else {
-                    // Kandungan LUAR backticks (Potential Text)
-                    if(part.trim()) rawTextBlocks.push(part.trim());
-                }
-            });
-
-            // 2. Sanity Check: Pastikan tiada teks "sesat" dalam kotak kod
-            let finalHtml = [];
-            let finalExtractedText = [...rawTextBlocks];
-
-            rawCodeBlocks.forEach(block => {
-                // Jika blok ada tag HTML atau simbol kod JS/CSS yang jelas
-                if (block.includes('<') || block.includes('{') || block.includes('/>') || block.includes('function')) {
-                    finalHtml.push(block);
-                } else {
-                    // Jika tak nampak macam kod, campak ke kotak teks
-                    finalExtractedText.push(block);
-                }
-            });
-
-            document.getElementById('out-html').innerText = finalHtml.join("\n\n/* --- NEXT BLOCK --- */\n\n");
-            document.getElementById('out-text').innerText = finalExtractedText.join("\n\n");
-        });
-
-        // BEAUTIFY LOGIC
-        const btnRunBeau = document.getElementById('btn-run-beau');
-        btnRunBeau.addEventListener('click', function() {
-            const raw = document.getElementById('input-beau').value.trim();
-            if(!raw) return alert("Sila masukkan data JSON!");
-            let clean = raw.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
-            try {
-                const obj = JSON.parse(clean);
-                document.getElementById('out-json').innerText = JSON.stringify(obj, null, 2);
-            } catch (e) {
-                document.getElementById('out-json').innerText = "❌ RALAT JSON: " + e.message;
-            }
-        });
-
-        // UNIVERSAL COPY
-        function copyToClipboard(elementId, btn) {
-            const el = document.getElementById(elementId);
-            const text = el.innerText;
-            if(!text || text.includes("muncul di sini")) return;
-            const dummy = document.createElement('textarea');
-            document.body.appendChild(dummy);
-            dummy.value = text;
-            dummy.select();
-            document.execCommand('copy');
-            document.body.removeChild(dummy);
-            const originalText = btn.innerText;
-            btn.innerText = "COPIED! ✅";
-            setTimeout(() => { btn.innerText = originalText; }, 1500);
+        if (!input.trim()) {
+            alert("Sila paste sesuatu dulu bro!");
+            return;
         }
 
-        document.getElementById('btn-copy-html').addEventListener('click', function() { copyToClipboard('out-html', this); });
-        document.getElementById('btn-copy-text').addEventListener('click', function() { copyToClipboard('out-text', this); });
-        document.getElementById('btn-copy-json').addEventListener('click', function() { copyToClipboard('out-json', this); });
+        // Regex untuk tangkap apa yang dalam 
 
-        // CLEAR LOGIC
-        document.getElementById('btn-clear-ext').addEventListener('click', () => {
-            if(confirm("Padam data Extraction?")) {
-                document.getElementById('input-ext').value = "";
-                document.getElementById('out-html').innerText = "Kod HTML akan muncul di sini...";
-                document.getElementById('out-text').innerText = "Penerangan AI akan muncul di sini...";
-            }
-        });
+/* --- NEXT BLOCK --- */
 
-        document.getElementById('btn-clear-beau').addEventListener('click', () => {
-            if(confirm("Padam data Beautify?")) {
-                document.getElementById('input-beau').value = "";
-                document.getElementById('out-json').innerText = "JSON yang kemas akan muncul di sini...";
-            }
+        const codeRegex = /
+
+/* --- NEXT BLOCK --- */
+
+/g;
+        let codeMatches = input.match(codeRegex);
+        
+        let allCode = "";
+        let cleanText = input;
+
+        if (codeMatches) {
+            codeMatches.forEach((match, index) => {
+                // Buang backticks dan nama language
+                let singleCode = match.replace(/
+
+/* --- NEXT BLOCK --- */
+
+/g, "");
+                allCode += singleCode + (index < codeMatches.length - 1 ? "\n\n/* --- NEXT BLOCK --- */\n\n" : "");
+                
+                // Buang kod dari teks borak
+                cleanText = cleanText.replace(match, "");
+            });
+        }
+
+        codeOutput.innerText = allCode || "Tiada kod dijumpai.";
+        textOutput.innerText = cleanText.trim() || "Tiada teks dijumpai.";
+        
+        // Auto-scroll ke bawah untuk tengok hasil
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function clearAll() {
+        if (confirm("Betul ke nak padam semua teks?")) {
+            document.getElementById('raw-input').value = "";
+            document.getElementById('code-output').innerText = "Kod akan muncul di sini...";
+            document.getElementById('text-output').innerText = "Borak biasa akan muncul di sini...";
+        }
+    }
+
+    function copyToClipboard(elementId) {
+        const el = document.getElementById(elementId);
+        // Jika textarea guna .value, jika div guna .innerText
+        const text = el.tagName === "TEXTAREA" ? el.value : el.innerText;
+        
+        if (!text || text.includes("akan muncul di sini") || text === "Tiada kod dijumpai.") return;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED! ✅";
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
+        }).catch(err => {
+            alert("Gagal menyalin teks: " + err);
         });
-    });
+    }
 </script>
+
 </body>
 </html>
+
+
