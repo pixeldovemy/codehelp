@@ -41,7 +41,7 @@
         .column { display: flex; flex-direction: column; }
         .label { font-size: 13px; font-weight: bold; color: #6c5ce7; margin-bottom: 8px; text-transform: uppercase; }
 
-        textarea.out-area {
+        textarea {
             width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
             background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 12px;
             color: #2d3436; line-height: 1.5; outline: none; resize: none;
@@ -67,7 +67,7 @@
         <div class="btn-row">
             <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
             <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-download-html" class="btn btn-download">DOWNLOAD .HTML 📥[ROSAK]</button>
+            <button id="btn-download-html" class="btn btn-download">DOWNLOAD .HTML 📥</button>
             <button id="btn-copy-html" class="btn btn-copy">COPY HTML 🌐</button>
             <button id="btn-copy-text" class="btn btn-copy">COPY TEXT 💬</button>
         </div>
@@ -75,7 +75,7 @@
         <div class="grid-3">
             <div class="column">
                 <span class="label">Original Input</span>
-                <textarea id="input-ext" style="height: 550px;" placeholder="Paste respon AI kat sini..."></textarea>
+                <textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea>
             </div>
             <div class="column">
                 <span class="label">Pure HTML Code (Page)</span>
@@ -100,7 +100,7 @@
         <div class="grid-2">
             <div class="column">
                 <span class="label">Original JSON Input</span>
-                <textarea id="input-beau" style="height: 550px;" placeholder="Paste JSON (cth ada koma di hujung) kat sini..."></textarea>
+                <textarea id="input-beau" placeholder="Paste JSON (cth ada koma di hujung) kat sini..."></textarea>
             </div>
             <div class="column">
                 <span class="label">Beautified & Repaired Code</span>
@@ -132,28 +132,24 @@ document.addEventListener("DOMContentLoaded", function() {
         area.addEventListener('click', function() { this.select(); });
     });
 
-    // --- EXTRACTION LOGIC ---
+    // --- EXTRACTION LOGIC (UNCHANGED) ---
     const btnRunExt = document.getElementById('btn-run-ext');
     btnRunExt.addEventListener('click', function() {
         const raw = document.getElementById('input-ext').value;
         if(!raw.trim()) return alert("Sila masukkan input!");
-
         const pattern = "<!DOCTYPE html>\\s*<html[\\s\\S]*?>[\\s\\S]*?<\\/script>\\s*<\\/body>\\s*<\\/html>";
         const htmlRegex = new RegExp(pattern, "gi");
-
         const htmlMatches = raw.match(htmlRegex);
         let normalText = raw.replace(htmlRegex, "[HTML_REMOVED]");
-
         let cleanText = normalText.split("[HTML_REMOVED]")
             .map(chunk => chunk.replace(/```[a-zA-Z]*\n?/g, "").replace(/```/g, "").trim())
             .filter(chunk => chunk !== "")
             .join("\n\n---\n\n");
-
         document.getElementById('out-html').value = htmlMatches ? htmlMatches.join("\n\n") : "Kod HTML tidak ditemui.";
         document.getElementById('out-text').value = cleanText || "Tiada teks penerangan ditemui.";
     });
 
-    // --- ULTRA JSON REPAIR ---
+    // --- ULTRA JSON REPAIR (FIXED & IMPROVED) ---
     const btnRunBeau = document.getElementById('btn-run-beau');
     btnRunBeau.addEventListener('click', function() {
         const raw = document.getElementById('input-beau').value.trim();
@@ -162,39 +158,51 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if(!raw) return alert("Sila masukkan data JSON!");
 
+        // Buang markdown backticks
         let clean = raw.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
 
         try {
-            // 1. BASIC CLEANING
+            // 1. BUANG COMMENTS & GANTI SMART QUOTES
             let repaired = clean
                 .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1') // Buang comments
-                .replace(/['’‘]/g, '"') // Quotes fix
-                .replace(/,\s*([\]}])/g, '$1') // Trailing commas dalam objek
-                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":'); // Quote keys
+                .replace(/[\u201C\u201D\u2018\u2019]/g, '"') // Tukar "smart quotes" ke standard
+                .replace(/'/g, '"'); // Paksa guna double quotes
 
-            // 2. SURGICAL FIX: Buang koma terakhir di hujung string (Punca error kau tadi)
+            // 2. REPAIR KOMATA & KEYS
+            repaired = repaired
+                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":') // Quote keys yang takde quote
+                .replace(/,\s*([\]}])/g, '$1'); // Buang trailing commas sebelum ] atau }
+
+            // 3. MULTIPLE OBJECTS AUTO-WRAP
+            // Jika ada banyak object tanpa koma (cth: {..} {..}), tambah koma dan kurungan []
+            repaired = repaired.replace(/}\s*{/g, '},{');
+            
             repaired = repaired.trim();
-            if (repaired.endsWith(',')) {
-                repaired = repaired.slice(0, -1);
-            }
+            // Buang koma terakhir di paling hujung teks
+            if (repaired.endsWith(',')) repaired = repaired.slice(0, -1);
 
-            // 3. AUTO-ARRAY FIX: Kalau ada banyak objek tapi takde [ ]
+            // 4. BALANCING BRACKETS
+            // Kalau input start dengan { tapi tak end dengan }, cuba tambah }
+            if (repaired.startsWith('{') && !repaired.endsWith('}')) repaired += '}';
+            if (repaired.startsWith('[') && !repaired.endsWith(']')) repaired += ']';
+
+            // 5. FINAL ATTEMPT: AUTO ARRAY WRAP
             if (!repaired.startsWith('[') && repaired.includes('},{')) {
                 repaired = '[' + repaired + ']';
             }
 
-            // 4. PARSE & BEAUTIFY
             const obj = JSON.parse(repaired);
             output.value = JSON.stringify(obj, null, 2);
             status.innerText = "Status: ✅ REPAIR BERJAYA";
             status.className = "status-ok";
         } catch (e) {
-            // Cuba cara terakhir: Bungkus dalam array secara paksa kalau masih gagal
+            // CUBAAN TERAKHIR: Parse apa saja yang nampak macam JSON
             try {
-                let forced = '[' + clean.replace(/,\s*$/, '').trim() + ']';
-                const obj = JSON.parse(forced);
+                let lastDitch = clean.replace(/,\s*$/, '').trim();
+                if (!lastDitch.startsWith('[') && !lastDitch.startsWith('{')) lastDitch = '[' + lastDitch + ']';
+                const obj = JSON.parse(lastDitch);
                 output.value = JSON.stringify(obj, null, 2);
-                status.innerText = "Status: ⚠️ AUTO-WRAPPED ARRAY";
+                status.innerText = "Status: ⚠️ RECOVERY BERJAYA";
                 status.className = "status-ok";
             } catch (e2) {
                 output.value = "❌ GAGAL REPAIR\n------------------\n" + e.message;
