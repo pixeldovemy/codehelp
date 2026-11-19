@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v5.7 - JSON Surgeon</title>
+    <title>AI Multi-Separator v5.8 - JSON Surgeon</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -20,7 +20,6 @@
         .btn-action { background: #6c5ce7; border-bottom: 4px solid #4834d4; }
         .btn-clear { background: #ff4757; border-bottom: 4px solid #b33939; }
         .btn-copy { background: #00b894; border-bottom: 4px solid #00876c; }
-        .btn-download { background: #0984e3; border-bottom: 4px solid #074b81; }
         textarea { width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #eee; background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 12px; color: #2d3436; line-height: 1.5; outline: none; resize: none; }
         #json-status { font-size: 12px; font-weight: bold; margin-bottom: 10px; display: block; }
         .status-ok { color: #27ae60; }
@@ -35,7 +34,6 @@
         <button id="tab-beau-btn" class="nav-btn">2. BEAUTIFY MODE ✨</button>
     </div>
 
-    <!-- EXTRACTION MODE -->
     <div id="page-extraction" class="mode-content active">
         <h2>HTML Hunter & Text Extractor</h2>
         <div class="btn-row">
@@ -51,18 +49,17 @@
         </div>
     </div>
 
-    <!-- BEAUTIFY MODE -->
     <div id="page-beautify" class="mode-content">
-        <h2>JSON Ultra-Surgeon & Beautify</h2>
+        <h2>JSON Ultra-Surgeon 5.8 (Deep Clean)</h2>
         <div class="btn-row">
-            <button id="btn-run-beau" class="btn btn-action" style="background: #e17055; border-bottom: 4px solid #b33939;">REPAIR & BEAUTIFY ✨</button>
+            <button id="btn-run-beau" class="btn btn-action" style="background: #e17055; border-bottom: 4px solid #b33939;">FORCE REPAIR & BEAUTIFY ✨</button>
             <button id="btn-clear-beau" class="btn btn-clear">PADAM SEMUA 🗑️</button>
             <button id="btn-copy-json" class="btn btn-copy">COPY JSON 📂</button>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <textarea id="input-beau" placeholder="Paste JSON bermasalah kat sini..."></textarea>
-            <div class="column">
-                <span id="json-status">Status: Menunggu input...</span>
+            <textarea id="input-beau" placeholder="Paste JSON 'kotor' (double quotes) kat sini..."></textarea>
+            <div class="column" style="display: flex; flex-direction: column;">
+                <span id="json-status">Status: Sedia menerima input...</span>
                 <textarea id="out-json" readonly style="color: #0984e3; font-weight: bold;" placeholder="Hasil repair akan muncul..."></textarea>
             </div>
         </div>
@@ -71,7 +68,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // TABS LOGIC
+    // TABS
     const tabExtBtn = document.getElementById('tab-ext-btn');
     const tabBeauBtn = document.getElementById('tab-beau-btn');
     const pageExt = document.getElementById('page-extraction');
@@ -80,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
     tabExtBtn.onclick = () => { tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active'); pageExt.classList.add('active'); pageBeau.classList.remove('active'); };
     tabBeauBtn.onclick = () => { tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active'); pageBeau.classList.add('active'); pageExt.classList.remove('active'); };
 
-    // EXTRACTION LOGIC (ASAL)
+    // EXTRACTION
     document.getElementById('btn-run-ext').onclick = () => {
         const raw = document.getElementById('input-ext').value;
         const htmlRegex = /<!DOCTYPE html>[\s\S]*?<\/html>/gi;
@@ -89,51 +86,60 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('out-text').value = raw.replace(htmlRegex, "").trim();
     };
 
-    // --- JSON ULTRA-SURGEON 3.0 ---
+    // --- JSON NUCLEAR SURGEON 5.8 ---
     document.getElementById('btn-run-beau').onclick = () => {
-        const raw = document.getElementById('input-beau').value.trim();
+        const rawInput = document.getElementById('input-beau').value.trim();
         const status = document.getElementById('json-status');
         const output = document.getElementById('out-json');
 
-        if(!raw) return alert("Sila masukkan data!");
+        if(!rawInput) return alert("Sila masukkan data!");
 
         try {
-            // 1. BUANG SAMPAH LUAR (Extract everything between first { or [ and last } or ])
-            let clean = raw;
-            const startIdx = Math.min(
-                raw.indexOf('{') === -1 ? Infinity : raw.indexOf('{'),
-                raw.indexOf('[') === -1 ? Infinity : raw.indexOf('[')
-            );
-            const endIdx = Math.max(raw.lastIndexOf('}'), raw.lastIndexOf(']'));
-
-            if (startIdx !== Infinity && endIdx !== -1) {
-                clean = raw.substring(startIdx, endIdx + 1);
-            }
-
-            // 2. FIX DOUBLE-DOUBLE QUOTES & ESCAPED QUOTES
-            clean = clean
+            // STEP 1: GLOBAL CLEANING
+            let str = rawInput
                 .replace(/""/g, '"') // Tukar "" ke "
-                .replace(/\\"/g, '"') // Tukar \" ke "
-                .replace(/[\u201C\u201D\u2018\u2019]/g, '"'); // Tukar smart quotes
+                .replace(/[\u201C\u201D\u2018\u2019]/g, '"') // Fix smart quotes
+                .trim();
 
-            // 3. REPAIR TRAILING COMMAS & MISSING QUOTES
-            let repaired = clean
-                .replace(/,\s*([\]}])/g, '$1') // Buang koma sebelum penutup
-                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":'); // Letak quote kat key
-
-            // 4. AUTO-WRAP MULTIPLE OBJECTS
-            repaired = repaired.replace(/}\s*{/g, '},{');
-            if (!repaired.startsWith('[') && repaired.includes('},{')) {
-                repaired = '[' + repaired + ']';
+            // STEP 2: STRIP WRAPPING QUOTES (Kalau start/end dengan ")
+            if (str.startsWith('"') && str.endsWith('"')) {
+                str = str.substring(1, str.length - 1).trim();
             }
 
-            // 5. PARSE
-            const obj = JSON.parse(repaired);
+            // STEP 3: FIND PURE JSON BOUNDARIES (Greedy Search)
+            const firstBrace = str.indexOf('{');
+            const firstBracket = str.indexOf('[');
+            const startIdx = (firstBrace === -1) ? firstBracket : (firstBracket === -1) ? firstBrace : Math.min(firstBrace, firstBracket);
+            
+            const lastBrace = str.lastIndexOf('}');
+            const lastBracket = str.lastIndexOf(']');
+            const endIdx = Math.max(lastBrace, lastBracket);
+
+            if (startIdx === -1 || endIdx === -1) {
+                throw new Error("Tiada struktur JSON { } atau [ ] ditemui.");
+            }
+
+            // Potong ambil zon JSON sahaja
+            let jsonBody = str.substring(startIdx, endIdx + 1);
+
+            // STEP 4: REPAIR INTERNAL ISSUES
+            jsonBody = jsonBody
+                .replace(/}\s*{/g, '},{') // Tambah koma antara object
+                .replace(/,\s*([\]}])/g, '$1') // Buang trailing commas
+                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":'); // Quote keys yang bogel
+
+            // STEP 5: AUTO-WRAP IF MULTIPLE OBJECTS (Bukan array tapi banyak object)
+            if (jsonBody.startsWith('{') && jsonBody.includes('},{') && !jsonBody.endsWith(']')) {
+                jsonBody = '[' + jsonBody + ']';
+            }
+
+            // FINAL PARSE
+            const obj = JSON.parse(jsonBody);
             output.value = JSON.stringify(obj, null, 2);
-            status.innerText = "Status: ✅ REPAIR BERJAYA";
+            status.innerText = "Status: ✅ DEEP REPAIR BERJAYA!";
             status.className = "status-ok";
         } catch (e) {
-            output.value = "❌ GAGAL REPAIR\n------------------\n" + e.message + "\n\nCuba bersihkan manual pembuka kata (\") di awal/akhir data jika ada.";
+            output.value = "❌ GAGAL TOTAL\n------------------\n" + e.message + "\n\nData ini sangat kotor. Sila pastikan anda tidak tersalah copy dari AI.";
             status.innerText = "Status: ❌ RALAT KRITIKAL";
             status.className = "status-err";
         }
@@ -141,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // CLEAR & COPY
     document.getElementById('btn-clear-ext').onclick = () => { document.getElementById('input-ext').value = ""; document.getElementById('out-html').value = ""; document.getElementById('out-text').value = ""; };
-    document.getElementById('btn-clear-beau').onclick = () => { document.getElementById('input-beau').value = ""; document.getElementById('out-json').value = ""; status.innerText = "Status: Menunggu..."; };
+    document.getElementById('btn-clear-beau').onclick = () => { document.getElementById('input-beau').value = ""; document.getElementById('out-json').value = ""; status.innerText = "Status: Sedia..."; };
     document.getElementById('btn-copy-json').onclick = () => { const el = document.getElementById('out-json'); el.select(); document.execCommand('copy'); alert("Copied!"); };
 });
 </script>
