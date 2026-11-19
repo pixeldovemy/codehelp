@@ -3,51 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v5.6 - JSON Ultra-Surgeon</title>
+    <title>AI Multi-Separator v5.7 - JSON Surgeon</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
         body { background: #f0f2f5; margin: 0; padding: 20px; }
         .wrapper { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-
         .nav-tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 3px solid #eee; padding-bottom: 15px; }
-        .nav-btn {
-            flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer;
-            font-weight: bold; font-size: 16px; transition: 0.3s; background: #dfe6e9; color: #636e72;
-        }
+        .nav-btn { flex: 1; padding: 15px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; background: #dfe6e9; color: #636e72; }
         .nav-btn.active { background: #6c5ce7; color: white; }
-
         .mode-content { display: none; }
         .mode-content.active { display: block; }
-
         h2 { color: #6c5ce7; margin-top: 0; font-size: 22px; margin-bottom: 15px; }
-
         .btn-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn {
-            padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer;
-            font-weight: bold; color: white; transition: 0.2s; font-size: 13px;
-        }
+        .btn { padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; font-size: 13px; }
         .btn-action { background: #6c5ce7; border-bottom: 4px solid #4834d4; }
         .btn-clear { background: #ff4757; border-bottom: 4px solid #b33939; }
         .btn-copy { background: #00b894; border-bottom: 4px solid #00876c; }
         .btn-download { background: #0984e3; border-bottom: 4px solid #074b81; }
-        .btn:active { transform: translateY(2px); border-bottom-width: 2px; }
-
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        @media (max-width: 1000px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
-
-        .column { display: flex; flex-direction: column; }
-        .label { font-size: 13px; font-weight: bold; color: #6c5ce7; margin-bottom: 8px; text-transform: uppercase; }
-
-        textarea {
-            width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #eee;
-            background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 12px;
-            color: #2d3436; line-height: 1.5; outline: none; resize: none;
-        }
-        textarea.out-area:focus { border-color: #6c5ce7; background: #fff; }
-        
+        textarea { width: 100%; height: 550px; padding: 15px; border-radius: 15px; border: 2px solid #eee; background: #f9f9f9; font-family: 'Courier New', monospace; font-size: 12px; color: #2d3436; line-height: 1.5; outline: none; resize: none; }
         #json-status { font-size: 12px; font-weight: bold; margin-bottom: 10px; display: block; }
         .status-ok { color: #27ae60; }
         .status-err { color: #e74c3c; }
@@ -63,28 +37,17 @@
 
     <!-- EXTRACTION MODE -->
     <div id="page-extraction" class="mode-content active">
-        <h2>HTML Hunter & Text Extractor (v5.6)</h2>
+        <h2>HTML Hunter & Text Extractor</h2>
         <div class="btn-row">
             <button id="btn-run-ext" class="btn btn-action">ASINGKAN SEKARANG 🚀</button>
             <button id="btn-clear-ext" class="btn btn-clear">PADAM SEMUA 🗑️</button>
-            <button id="btn-download-html" class="btn btn-download">DOWNLOAD .HTML 📥</button>
             <button id="btn-copy-html" class="btn btn-copy">COPY HTML 🌐</button>
             <button id="btn-copy-text" class="btn btn-copy">COPY TEXT 💬</button>
         </div>
-
-        <div class="grid-3">
-            <div class="column">
-                <span class="label">Original Input</span>
-                <textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea>
-            </div>
-            <div class="column">
-                <span class="label">Pure HTML Code (Page)</span>
-                <textarea id="out-html" class="out-area" readonly placeholder="Kod HTML akan muncul di sini..."></textarea>
-            </div>
-            <div class="column">
-                <span class="label">Normal Text (Exclusion)</span>
-                <textarea id="out-text" class="out-area" readonly style="font-family: 'Fredoka', sans-serif;" placeholder="Penerangan AI akan muncul di sini..."></textarea>
-            </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea>
+            <textarea id="out-html" readonly placeholder="Kod HTML akan muncul..."></textarea>
+            <textarea id="out-text" readonly style="font-family: 'Fredoka';" placeholder="Teks akan muncul..."></textarea>
         </div>
     </div>
 
@@ -96,16 +59,11 @@
             <button id="btn-clear-beau" class="btn btn-clear">PADAM SEMUA 🗑️</button>
             <button id="btn-copy-json" class="btn btn-copy">COPY JSON 📂</button>
         </div>
-
-        <div class="grid-2">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <textarea id="input-beau" placeholder="Paste JSON bermasalah kat sini..."></textarea>
             <div class="column">
-                <span class="label">Original JSON Input</span>
-                <textarea id="input-beau" placeholder="Paste JSON (cth ada koma di hujung) kat sini..."></textarea>
-            </div>
-            <div class="column">
-                <span class="label">Beautified & Repaired Code</span>
                 <span id="json-status">Status: Menunggu input...</span>
-                <textarea id="out-json" class="out-area" readonly style="color: #0984e3; font-weight: bold;" placeholder="Hasil repair akan muncul di sini..."></textarea>
+                <textarea id="out-json" readonly style="color: #0984e3; font-weight: bold;" placeholder="Hasil repair akan muncul..."></textarea>
             </div>
         </div>
     </div>
@@ -113,142 +71,78 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // TABS LOGIC
     const tabExtBtn = document.getElementById('tab-ext-btn');
     const tabBeauBtn = document.getElementById('tab-beau-btn');
     const pageExt = document.getElementById('page-extraction');
     const pageBeau = document.getElementById('page-beautify');
 
-    tabExtBtn.addEventListener('click', () => {
-        tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active');
-        pageExt.classList.add('active'); pageBeau.classList.remove('active');
-    });
+    tabExtBtn.onclick = () => { tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active'); pageExt.classList.add('active'); pageBeau.classList.remove('active'); };
+    tabBeauBtn.onclick = () => { tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active'); pageBeau.classList.add('active'); pageExt.classList.remove('active'); };
 
-    tabBeauBtn.addEventListener('click', () => {
-        tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active');
-        pageBeau.classList.add('active'); pageExt.classList.remove('active');
-    });
-
-    document.querySelectorAll('.out-area').forEach(area => {
-        area.addEventListener('click', function() { this.select(); });
-    });
-
-    // --- EXTRACTION LOGIC (UNCHANGED) ---
-    const btnRunExt = document.getElementById('btn-run-ext');
-    btnRunExt.addEventListener('click', function() {
+    // EXTRACTION LOGIC (ASAL)
+    document.getElementById('btn-run-ext').onclick = () => {
         const raw = document.getElementById('input-ext').value;
-        if(!raw.trim()) return alert("Sila masukkan input!");
-        const pattern = "<!DOCTYPE html>\\s*<html[\\s\\S]*?>[\\s\\S]*?<\\/script>\\s*<\\/body>\\s*<\\/html>";
-        const htmlRegex = new RegExp(pattern, "gi");
+        const htmlRegex = /<!DOCTYPE html>[\s\S]*?<\/html>/gi;
         const htmlMatches = raw.match(htmlRegex);
-        let normalText = raw.replace(htmlRegex, "[HTML_REMOVED]");
-        let cleanText = normalText.split("[HTML_REMOVED]")
-            .map(chunk => chunk.replace(/```[a-zA-Z]*\n?/g, "").replace(/```/g, "").trim())
-            .filter(chunk => chunk !== "")
-            .join("\n\n---\n\n");
-        document.getElementById('out-html').value = htmlMatches ? htmlMatches.join("\n\n") : "Kod HTML tidak ditemui.";
-        document.getElementById('out-text').value = cleanText || "Tiada teks penerangan ditemui.";
-    });
+        document.getElementById('out-html').value = htmlMatches ? htmlMatches.join("\n\n") : "Tiada HTML.";
+        document.getElementById('out-text').value = raw.replace(htmlRegex, "").trim();
+    };
 
-    // --- ULTRA JSON REPAIR (FIXED & IMPROVED) ---
-    const btnRunBeau = document.getElementById('btn-run-beau');
-    btnRunBeau.addEventListener('click', function() {
+    // --- JSON ULTRA-SURGEON 3.0 ---
+    document.getElementById('btn-run-beau').onclick = () => {
         const raw = document.getElementById('input-beau').value.trim();
         const status = document.getElementById('json-status');
         const output = document.getElementById('out-json');
 
-        if(!raw) return alert("Sila masukkan data JSON!");
-
-        // Buang markdown backticks
-        let clean = raw.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim();
+        if(!raw) return alert("Sila masukkan data!");
 
         try {
-            // 1. BUANG COMMENTS & GANTI SMART QUOTES
+            // 1. BUANG SAMPAH LUAR (Extract everything between first { or [ and last } or ])
+            let clean = raw;
+            const startIdx = Math.min(
+                raw.indexOf('{') === -1 ? Infinity : raw.indexOf('{'),
+                raw.indexOf('[') === -1 ? Infinity : raw.indexOf('[')
+            );
+            const endIdx = Math.max(raw.lastIndexOf('}'), raw.lastIndexOf(']'));
+
+            if (startIdx !== Infinity && endIdx !== -1) {
+                clean = raw.substring(startIdx, endIdx + 1);
+            }
+
+            // 2. FIX DOUBLE-DOUBLE QUOTES & ESCAPED QUOTES
+            clean = clean
+                .replace(/""/g, '"') // Tukar "" ke "
+                .replace(/\\"/g, '"') // Tukar \" ke "
+                .replace(/[\u201C\u201D\u2018\u2019]/g, '"'); // Tukar smart quotes
+
+            // 3. REPAIR TRAILING COMMAS & MISSING QUOTES
             let repaired = clean
-                .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1') // Buang comments
-                .replace(/[\u201C\u201D\u2018\u2019]/g, '"') // Tukar "smart quotes" ke standard
-                .replace(/'/g, '"'); // Paksa guna double quotes
+                .replace(/,\s*([\]}])/g, '$1') // Buang koma sebelum penutup
+                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":'); // Letak quote kat key
 
-            // 2. REPAIR KOMATA & KEYS
-            repaired = repaired
-                .replace(/([{,]\s*)([a-zA-Z0-9_]+?)\s*:/g, '$1"$2":') // Quote keys yang takde quote
-                .replace(/,\s*([\]}])/g, '$1'); // Buang trailing commas sebelum ] atau }
-
-            // 3. MULTIPLE OBJECTS AUTO-WRAP
-            // Jika ada banyak object tanpa koma (cth: {..} {..}), tambah koma dan kurungan []
+            // 4. AUTO-WRAP MULTIPLE OBJECTS
             repaired = repaired.replace(/}\s*{/g, '},{');
-            
-            repaired = repaired.trim();
-            // Buang koma terakhir di paling hujung teks
-            if (repaired.endsWith(',')) repaired = repaired.slice(0, -1);
-
-            // 4. BALANCING BRACKETS
-            // Kalau input start dengan { tapi tak end dengan }, cuba tambah }
-            if (repaired.startsWith('{') && !repaired.endsWith('}')) repaired += '}';
-            if (repaired.startsWith('[') && !repaired.endsWith(']')) repaired += ']';
-
-            // 5. FINAL ATTEMPT: AUTO ARRAY WRAP
             if (!repaired.startsWith('[') && repaired.includes('},{')) {
                 repaired = '[' + repaired + ']';
             }
 
+            // 5. PARSE
             const obj = JSON.parse(repaired);
             output.value = JSON.stringify(obj, null, 2);
             status.innerText = "Status: ✅ REPAIR BERJAYA";
             status.className = "status-ok";
         } catch (e) {
-            // CUBAAN TERAKHIR: Parse apa saja yang nampak macam JSON
-            try {
-                let lastDitch = clean.replace(/,\s*$/, '').trim();
-                if (!lastDitch.startsWith('[') && !lastDitch.startsWith('{')) lastDitch = '[' + lastDitch + ']';
-                const obj = JSON.parse(lastDitch);
-                output.value = JSON.stringify(obj, null, 2);
-                status.innerText = "Status: ⚠️ RECOVERY BERJAYA";
-                status.className = "status-ok";
-            } catch (e2) {
-                output.value = "❌ GAGAL REPAIR\n------------------\n" + e.message;
-                status.innerText = "Status: ❌ RALAT KRITIKAL";
-                status.className = "status-err";
-            }
+            output.value = "❌ GAGAL REPAIR\n------------------\n" + e.message + "\n\nCuba bersihkan manual pembuka kata (\") di awal/akhir data jika ada.";
+            status.innerText = "Status: ❌ RALAT KRITIKAL";
+            status.className = "status-err";
         }
-    });
-
-    // --- UNIVERSAL COPY ---
-    function fastCopy(id, btn) {
-        const area = document.getElementById(id);
-        if(!area.value || area.value.includes("akan muncul")) return;
-        area.select();
-        document.execCommand('copy');
-        const ori = btn.innerText;
-        btn.innerText = "COPIED! ✅";
-        setTimeout(() => { btn.innerText = ori; }, 1500);
-    }
-
-    document.getElementById('btn-copy-html').onclick = function() { fastCopy('out-html', this); };
-    document.getElementById('btn-copy-text').onclick = function() { fastCopy('out-text', this); };
-    document.getElementById('btn-copy-json').onclick = function() { fastCopy('out-json', this); };
-
-    // --- DOWNLOAD ---
-    document.getElementById('btn-download-html').onclick = () => {
-        const code = document.getElementById('out-html').value;
-        if(!code || code.includes("tidak ditemui")) return alert("Tiada kod!");
-        const blob = new Blob([code], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'index.html';
-        a.click();
     };
 
-    // --- CLEAR ---
-    document.getElementById('btn-clear-ext').onclick = () => {
-        document.getElementById('input-ext').value = "";
-        document.getElementById('out-html').value = "";
-        document.getElementById('out-text').value = "";
-    };
-    document.getElementById('btn-clear-beau').onclick = () => {
-        document.getElementById('input-beau').value = "";
-        document.getElementById('out-json').value = "";
-        document.getElementById('json-status').innerText = "Status: Menunggu input...";
-    };
+    // CLEAR & COPY
+    document.getElementById('btn-clear-ext').onclick = () => { document.getElementById('input-ext').value = ""; document.getElementById('out-html').value = ""; document.getElementById('out-text').value = ""; };
+    document.getElementById('btn-clear-beau').onclick = () => { document.getElementById('input-beau').value = ""; document.getElementById('out-json').value = ""; status.innerText = "Status: Menunggu..."; };
+    document.getElementById('btn-copy-json').onclick = () => { const el = document.getElementById('out-json'); el.select(); document.execCommand('copy'); alert("Copied!"); };
 });
 </script>
 </body>
