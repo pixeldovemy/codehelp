@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Multi-Separator v6.0 - JSON Surgeon</title>
+    <title>AI Multi-Separator v6.1 - JSON Surgeon</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -46,8 +46,8 @@
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
             <div class="column"><textarea id="input-ext" placeholder="Paste respon AI kat sini..."></textarea></div>
-            <div class="column"><textarea id="out-html" readonly placeholder="Kod HTML akan muncul..."></textarea></div>
-            <div class="column"><textarea id="out-text" readonly style="font-family: 'Fredoka';" placeholder="Teks akan muncul..."></textarea></div>
+            <div class="column"><textarea id="out-html" readonly placeholder="Kod HTML akan muncul..." onclick="this.select()"></textarea></div>
+            <div class="column"><textarea id="out-text" readonly style="font-family: 'Fredoka';" placeholder="Teks akan muncul..." onclick="this.select()"></textarea></div>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
             <div class="column"><textarea id="input-beau" placeholder="Paste JSON CSV/Double Quote kat sini..."></textarea></div>
             <div class="column">
                 <span id="json-status">Sedia membaiki data anda...</span>
-                <textarea id="out-json" readonly style="color: #0984e3; font-weight: bold;" placeholder="Hasil repair akan muncul..."></textarea>
+                <textarea id="out-json" readonly style="color: #0984e3; font-weight: bold;" placeholder="Hasil repair akan muncul..." onclick="this.select()"></textarea>
             </div>
         </div>
     </div>
@@ -75,10 +75,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const pageExt = document.getElementById('page-extraction');
     const pageBeau = document.getElementById('page-beautify');
 
+    // TABS SWITCHING
     tabExtBtn.onclick = () => { tabExtBtn.classList.add('active'); tabBeauBtn.classList.remove('active'); pageExt.classList.add('active'); pageBeau.classList.remove('active'); };
     tabBeauBtn.onclick = () => { tabBeauBtn.classList.add('active'); tabExtBtn.classList.remove('active'); pageBeau.classList.add('active'); pageExt.classList.remove('active'); };
 
-    // --- EXTRACTION (UNCHANGED) ---
+    // --- EXTRACTION LOGIC ---
     document.getElementById('btn-run-ext').onclick = () => {
         const raw = document.getElementById('input-ext').value;
         const htmlRegex = /<!DOCTYPE html>[\s\S]*?<\/html>/gi;
@@ -87,7 +88,29 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('out-text').value = raw.replace(htmlRegex, "").trim();
     };
 
-    // --- THE ULTIMATE JSON SURGEON 6.0 ---
+    // CLEAR EXTRACTION
+    document.getElementById('btn-clear-ext').onclick = () => {
+        document.getElementById('input-ext').value = "";
+        document.getElementById('out-html').value = "";
+        document.getElementById('out-text').value = "";
+    };
+
+    // COPY EXTRACTION DATA
+    function copyVal(id, btnId) {
+        const out = document.getElementById(id);
+        const btn = document.getElementById(btnId);
+        if(!out.value || out.value.includes("Tiada")) return;
+        out.select();
+        document.execCommand('copy');
+        const originalText = btn.innerText;
+        btn.innerText = "BERJAYA! ✅";
+        setTimeout(() => { btn.innerText = originalText; }, 1500);
+    }
+
+    document.getElementById('btn-copy-html').onclick = () => copyVal('out-html', 'btn-copy-html');
+    document.getElementById('btn-copy-text').onclick = () => copyVal('out-text', 'btn-copy-text');
+
+    // --- THE ULTIMATE JSON SURGEON 6.0 (MAINTAINED) ---
     document.getElementById('btn-run-beau').onclick = () => {
         let raw = document.getElementById('input-beau').value.trim();
         const status = document.getElementById('json-status');
@@ -96,17 +119,11 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!raw) return alert("Sila masukkan data!");
 
         try {
-            // FASA 1: UNQUOTE OVERKILL
-            // Buang "" yang AI buat masa copy dari spreadsheet/CSV
             let clean = raw.replace(/""/g, '"');
-
-            // FASA 2: OUTER QUOTE REMOVAL
-            // Kadang-kadang keseluruhan JSON dibungkus dalam sebiji "..."
             if (clean.startsWith('"') && clean.endsWith('"')) {
                 clean = clean.substring(1, clean.length - 1);
             }
 
-            // FASA 3: BRACKET SNIPER (Ambil isi tengah sahaja)
             const startIdx = Math.min(
                 clean.indexOf('{') === -1 ? Infinity : clean.indexOf('{'),
                 clean.indexOf('[') === -1 ? Infinity : clean.indexOf('[')
@@ -121,21 +138,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
             let body = clean.substring(startIdx, endIdx + 1).trim();
 
-            // FASA 4: MULTI-OBJECT ARRAY WRAPPING
-            // Kalau ada }, { tapi tak bermula dengan [, kita paksa balut dengan []
             if (body.includes('},') || body.includes('}\n{') || body.includes('}{')) {
                 if (!body.startsWith('[')) {
-                    // Baiki jika ada koma sesat antara objek
                     body = body.replace(/}\s*([^{}\[\]]*)\s*{/g, '},{');
                     body = '[' + body + ']';
                 }
             }
-
-            // FASA 5: CLEANUP TRAILING COMMAS
-            // Buang koma sebelum ] atau }
             body = body.replace(/,\s*([\]}])/g, '$1');
-
-            // FASA 6: PARSE & BEAUTIFY
             const parsed = JSON.parse(body);
             output.value = JSON.stringify(parsed, null, 2);
             
@@ -145,11 +154,11 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (e) {
             status.innerText = "❌ RALAT: " + e.message;
             status.className = "status-err";
-            output.value = "PUNCA GAGAL:\n1. Data mungkin terputus (tak habis copy).\n2. Ada karakter pelik di tengah-tengah ayat.\n3. Cuba buang simbol manual jika nampak ketara.\n\nERROR LOG:\n" + e.stack;
+            output.value = "PUNCA GAGAL:\n" + e.stack;
         }
     };
 
-    // COPY LOGIC
+    // COPY JSON
     document.getElementById('btn-copy-json').onclick = function() {
         const out = document.getElementById('out-json');
         if(!out.value) return;
@@ -163,6 +172,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('btn-clear-beau').onclick = () => {
         document.getElementById('input-beau').value = "";
         document.getElementById('out-json').value = "";
+        const status = document.getElementById('json-status');
         status.innerText = "Sedia membaiki data anda...";
         status.className = "";
     };
